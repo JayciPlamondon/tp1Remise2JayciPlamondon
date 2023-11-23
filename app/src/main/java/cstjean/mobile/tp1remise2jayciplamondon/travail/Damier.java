@@ -688,6 +688,8 @@ public class Damier {
      */
     @SuppressWarnings("checkstyle:EmptyBlock")
     public boolean deplacerPion(int positionDepart, Direction direction) {
+        System.out.println("Position Départ -> " + positionDepart);
+        System.out.println("Direction -> " + direction);
 
         boolean peutDeplacerPion = false;
         int positionArrivee;

@@ -43,6 +43,11 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
      */
     private boolean isDark;
 
+    /**
+     * Si la case est sélectionnée.
+     */
+    private boolean isSelected = false;
+
     private Pion pion = null;
 
     public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Pion pion, int id) {
@@ -96,10 +101,37 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
 
     public void setTileToSelectedColor() {
         setBackgroundColor(SELECTED_COLOR);
+        isSelected = true;
     }
 
     private void resetBackgroundColor() {
         setBackgroundColor(DARK_COLOR);
+        isSelected = false;
+    }
+
+    private void reinitialisationCouleur() {
+        // Réinitialise la couleur de la dernière case sélectionnée (si elle existe)
+        if (damierFragment.lastSelectedTile != null) {
+            damierFragment.lastSelectedTile.resetBackgroundColor();
+        }
+
+        // Réinitialise la couleur des dernière case déplacement possible
+        if (damierFragment.lastSelectedTiles != null) {
+            // Iterate through the map using a for-each loop
+            damierFragment.lastSelectedTiles.forEach((key, caseDeJeu) -> caseDeJeu.resetBackgroundColor());
+
+        }
+    }
+
+    public void mettreEnSurbrillance() {
+        // Met la case en surbrillance si c'est un pion
+        if (pion != null) {
+            setTileToSelectedColor();
+            damierFragment.lastSelectedTile = this;
+
+            // Surbrillance des cases disponibles pour déplacement
+            damierFragment.displayAvailableTiles(position);
+        }
     }
 
     @Override
@@ -115,27 +147,26 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
                             ", position -> " + position + ", isPlayable -> " + isDark +
                             ", id -> " + id);
 
-        // Réinitialise la couleur de la dernière case sélectionnée (si elle existe)
-        if (damierFragment.lastSelectedTile != null) {
-            damierFragment.lastSelectedTile.resetBackgroundColor();
-            System.out.println("RESET COLOR");
+        if (isSelected && pion == null) {
+                System.out.println("On déplace le pion vers cette position!");
+                damierFragment.deplacerPionLayout(col);
         }
 
-        // Réinitialise la couleur des dernière case déplacement possible
-        if (damierFragment.lastSelectedTiles != null) {
-            // Iterate through the map using a for-each loop
-            damierFragment.lastSelectedTiles.forEach((key, caseDeJeu) -> caseDeJeu.resetBackgroundColor());
+        reinitialisationCouleur();
 
-        }
+        mettreEnSurbrillance();
+    }
 
-        // Met la case en surbrillance si c'est un pion
-        if (pion != null) {
-            setTileToSelectedColor();
-            damierFragment.lastSelectedTile = this;
+    public Pion getPion() {
+        return pion;
+    }
 
-            // Surbrillance des cases disponibles pour déplacement
-            damierFragment.displayAvailableTiles(position);
-        }
+    public int getCol() {
+        return col;
+    }
+
+    public int getPosition() {
+        return position;
     }
 }
 

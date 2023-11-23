@@ -120,6 +120,73 @@ public class DamierFragment extends Fragment {
      * Initialise le tableau contenant les références des boutons dans une grille de 3x3.
      */
     private void initializeButtonsArray() {
+
+        updateLayout();
+    }
+
+    public void displayAvailableTiles(int positionDepart) {
+        boolean[] arrayCaseDisponible = damier.caseDisponiblePion(positionDepart);
+
+
+        for (int i = 1; i < 50; i++) {
+            if (arrayCaseDisponible[i]) {
+                System.out.println("position : " + i);
+                Bouton boutonRecupere = getActivity().findViewById(i);
+                boutonRecupere.setTileToSelectedColor();
+                lastSelectedTiles.put(i, boutonRecupere);
+            }
+        }
+    }
+
+    /**
+     * Déplace le pion dans le layout.
+     */
+    public void deplacerPionLayout(int colArrive) {
+        Damier.Direction direction;
+        Pion pionDepart = lastSelectedTile.getPion();
+        int positionDepart = lastSelectedTile.getPosition();
+        int colDepart = lastSelectedTile.getCol();
+
+        direction = calculerDirection(colArrive, colDepart, pionDepart);
+
+        try {
+            damier.deplacerPion(positionDepart, direction);
+            // Remove all views from the layout
+            gridBoutons.removeAllViews();
+            updateLayout();
+        } catch (Exception e) {
+            System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
+        }
+
+    }
+
+    /**
+     * Détermine la direction
+     */
+    private Damier.Direction calculerDirection(int colArrive, int colDepart, Pion pionDepart) {
+        Damier.Direction direction;
+
+        if (colArrive > colDepart) {
+            // Direction Gauche
+            if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
+                direction = Damier.Direction.HautDroite;
+            else
+                direction = Damier.Direction.BasDroite;
+        } else {
+            // Direction Droite
+            if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
+                direction = Damier.Direction.HautGauche;
+            else
+                direction = Damier.Direction.HautGauche;
+        }
+
+        return direction;
+    }
+
+    /**
+     * Update le layout.
+     */
+    private void updateLayout() {
         int compteur = 1;
         boolean isDark = false;
         int positionRéelle = 1;
@@ -178,20 +245,6 @@ public class DamierFragment extends Fragment {
             }
             // Toggle the starting color for each row to maintain the checkerboard pattern
             isDark = !isDark;
-        }
-    }
-
-    public void displayAvailableTiles(int positionDepart) {
-        boolean[] arrayCaseDisponible = damier.caseDisponiblePion(positionDepart);
-
-
-        for (int i = 1; i < 50; i++) {
-            if (arrayCaseDisponible[i]) {
-                System.out.println("position : " + i);
-                Bouton boutonRecupere = getActivity().findViewById(i);
-                boutonRecupere.setTileToSelectedColor();
-                lastSelectedTiles.put(i, boutonRecupere);
-            }
         }
     }
 }
