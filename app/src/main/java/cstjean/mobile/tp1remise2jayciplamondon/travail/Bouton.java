@@ -4,18 +4,16 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-public class Bouton extends View implements View.OnClickListener {
+public class Bouton extends FrameLayout implements View.OnClickListener {
 
     public Bouton(Context context) {
         super(context);
         init();
     }
 
-    public Bouton(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public Bouton(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -23,12 +21,15 @@ public class Bouton extends View implements View.OnClickListener {
     private void init() {
         // Set the background color to green
         setBackgroundColor(Color.GREEN);
+
+        // Set click listener for the Bouton
         setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
-        // Handle click event here
+        // Handle click event for Bouton here
         // Add your specific click handling logic
     }
 }
+
