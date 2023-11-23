@@ -1,11 +1,11 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 
@@ -31,6 +30,21 @@ public class DamierFragment extends Fragment {
      * Représente le linearLayout.
      */
     private LinearLayout linearLayout;
+
+    /**
+     * Représente le titre tour du joueur.
+     */
+    private TextView titlePlayerTurn;
+
+    /**
+     * Dernière case sélectionnée.
+     */
+    public Bouton lastSelectedTile = null;
+
+    /**
+     * Dernières cases sélectionnées par disponibilité.
+     */
+    public Map<Integer, Bouton> lastSelectedTiles = new HashMap<>();
 
     /**
      * Instance du jeu Notakto.
@@ -69,6 +83,20 @@ public class DamierFragment extends Fragment {
     private void initializeUiElements(View view) {
         linearLayout = view.findViewById(R.id.linearLayout);
 
+        titlePlayerTurn = new TextView(getActivity());
+
+        if (damier.getTourJoueur() == 1) {
+            titlePlayerTurn.setText("C'est le tour au blanc");
+        } else {
+            titlePlayerTurn.setText("C'est le tour au noir");
+        }
+
+        // Modifie la taille du texte et le met au centre
+        titlePlayerTurn.setTextSize(30);
+        titlePlayerTurn.setGravity(Gravity.CENTER);
+
+        linearLayout.addView(titlePlayerTurn);
+
         gridBoutons = new GridLayout(getActivity());
 
         // Set the layout parameters with a marginBottom
@@ -92,35 +120,38 @@ public class DamierFragment extends Fragment {
      * Initialise le tableau contenant les références des boutons dans une grille de 3x3.
      */
     private void initializeButtonsArray() {
-        int compteur = 0;
-        int darkColor = Color.rgb(191, 144, 92); // Dark color (adjust values as needed)
-        int lightColor = Color.rgb(241, 209, 169); // Light color (adjust values as needed)
+        int compteur = 1;
         boolean isDark = false;
-        int positionRéelle = 0;
+        int positionRéelle = 1;
 
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                compteur++;
+                int position = i * 10 + j + 1; // Calculate position based on i and j indices
 
-                Bouton bouton = new Bouton(getActivity());
-                bouton.setId(compteur);
+                // Création d'une case, si jouable, elle obtient la positionRéelle(du pion)
+                Bouton bouton;
+
+                // Remplacer le paramètre lastSelectedTile par le Singleton!!!
+                if(isDark) {
+                    bouton = new Bouton(getActivity(), i, j, positionRéelle, isDark, this, damier.getPion(positionRéelle), compteur);
+                    bouton.setId(compteur);
+                    compteur++;
+                }
+                else {
+                    bouton = new Bouton(getActivity(), i, j, position, isDark, this);
+                }
 
                 // Set square attributes (size, etc.)
                 bouton.setLayoutParams(new GridLayout.LayoutParams());
                 bouton.getLayoutParams().width = 100; // Set width (in dp) as needed
                 bouton.getLayoutParams().height = 100; // Set height (in dp) as needed
 
-                int position = i * 10 + j + 1; // Calculate position based on i and j indices
 
                 Pion pion;
 
                 // Alternate background colors for a chessboard pattern
                 if (isDark) {
                     // Ajout de pions ici
-                    bouton.setBackgroundColor(darkColor);
-                    System.out.println("Position non-jouable" + position);
-                    System.out.println("Position réelle" + positionRéelle);
-                    positionRéelle++;
 
                     pion = damier.getPion(positionRéelle);
 
@@ -128,15 +159,16 @@ public class DamierFragment extends Fragment {
                         // Add an ImageView to represent the pawn on the square
                         ImageView pawn = new ImageView(getActivity());
                         pawn.setImageResource(pion.getCouleur() == Pion.Couleur.Noir ?
-                                R.drawable.pawn_image : R.drawable.pawn_image);
+                                R.drawable.black_pawn : R.drawable.white_pawn);
                         pawn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
                         // Add the pawn ImageView to the Bouton
                         bouton.addView(pawn);
                     }
+                    positionRéelle++;
+
                 } else {
                     // Cases non-jouable
-                    bouton.setBackgroundColor(lightColor);
                 }
 
                 gridBoutons.addView(bouton); // Add the square to the GridLayout
@@ -148,68 +180,18 @@ public class DamierFragment extends Fragment {
             isDark = !isDark;
         }
     }
-/*
-    private void initializeButtonsArray() {
-        int darkColor = Color.rgb(191, 144, 92); // Dark color (adjust values as needed)
-        int lightColor = Color.rgb(241, 209, 169); // Light color (adjust values as needed)
-        boolean isDark = false;
 
-        int usefulPionSize = 5; // Size of useful pion map
-        int layoutSize = 10; // Size of the layout
+    public void displayAvailableTiles(int positionDepart) {
+        boolean[] arrayCaseDisponible = damier.caseDisponiblePion(positionDepart);
 
-        for (Map.Entry<Integer, Pion> entry : damier.getPionMap().entrySet()) {
-            int position = entry.getKey();
-            Pion pion = entry.getValue();
 
-            // Do something with position and pion
-            System.out.println("Position: " + position + ", Pion: " + pion);
-        }
-        int compteurPositionPion = 0;
-
-        for (int i = 0; i < layoutSize; i++) {
-            for (int j = 0; j < layoutSize; j++) {
-                Bouton bouton = new Bouton(getActivity());
-
-                bouton.setLayoutParams(new GridLayout.LayoutParams());
-                bouton.getLayoutParams().width = 100; // Set width (in dp) as needed
-                bouton.getLayoutParams().height = 100; // Set height (in dp) as needed
-
-                boolean isUsefulRow = i % 2 != 0;
-                boolean isUsefulCol = j % 2 != 0;
-
-                // For empty spaces (not in the useful pion positions)
-                if ((isUsefulRow && !isUsefulCol) || (!isUsefulRow && isUsefulCol)) {
-                    bouton.setBackgroundColor(lightColor);
-                    System.out.println("NON");
-                } else {
-
-                    System.out.println(compteurPositionPion);
-                    bouton.setBackgroundColor(darkColor);
-
-                    // Calculate the position in the useful 5x5 grid based on layout indices
-                    int usefulPionRow = i / 2;
-                    int usefulPionCol = j / 2;
-                    int position = usefulPionRow * usefulPionSize + usefulPionCol + 1;
-
-                    // Get the pion from the useful map
-                    Pion pion = damier.getPion(position);
-
-                    if (pion != null) {
-                    ImageView pawn = new ImageView(getActivity());
-                    pawn.setImageResource(pion.getCouleur() == Pion.Couleur.Noir ?
-                            R.drawable.pawn_image : R.drawable.pawn_image);
-                    pawn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-
-                    bouton.addView(pawn);
-                    }
-
-                    compteurPositionPion = compteurPositionPion + 1;
-                }
-
-                gridBoutons.addView(bouton);
+        for (int i = 1; i < 50; i++) {
+            if (arrayCaseDisponible[i]) {
+                System.out.println("position : " + i);
+                Bouton boutonRecupere = getActivity().findViewById(i);
+                boutonRecupere.setTileToSelectedColor();
+                lastSelectedTiles.put(i, boutonRecupere);
             }
         }
     }
-
- */
 }

@@ -411,6 +411,7 @@ public class Damier {
                         positionArrive = positionDepart + 4;
                     }
                 }
+                break;
             }
             case BasDroite : {
                 if (rowDepart % 2 == 0) {
@@ -423,6 +424,7 @@ public class Damier {
                 } else {
                     positionArrive = positionDepart + 5;
                 }
+                break;
             }
             case HautGauche : {
                 if (rowDepart % 2 == 0) {
@@ -435,6 +437,7 @@ public class Damier {
                         positionArrive = positionDepart - 6;
                     }
                 }
+                break;
             }
             case HautDroite : {
                 if (rowDepart % 2 == 0) {
@@ -448,6 +451,8 @@ public class Damier {
                     positionArrive = positionDepart - 5;
                 }
             }
+
+            break;
         }
 
         if (positionArrive > 50 || positionArrive < 1) {
@@ -693,6 +698,7 @@ public class Damier {
             // True
             if (joueurPeutJouer(positionDepart)) {
                 // True
+                System.out.println("Joueur peut jouer !!!");
                 positionArrivee = getCaseArrivee(positionDepart, direction);
 
                 if (verifierSiCaseEstVide(positionArrivee) && positionArrivee != -1) {
@@ -751,7 +757,35 @@ public class Damier {
             }
         }
 
+        if (!peutDeplacerPion)
+            System.out.println("Déplcementimpossible");
+        else
+            System.out.println("Déplacement possible");
+
         return peutDeplacerPion;
+    }
+
+    public boolean deplacementValidePion(int positionArrivee, Direction direction) {
+        boolean  deplacementEstValide = true;
+        if (positionArrivee == -1)
+            deplacementEstValide = false;
+        if (!verifierSiCaseEstVide(positionArrivee))
+            deplacementEstValide = false;
+
+        return deplacementEstValide;
+    }
+
+    public boolean[] caseDisponiblePion(int positionDepart) {
+        boolean[] caseDisponiblePion = new boolean[50];
+        int caseArrivée;
+
+        for (Direction direction : Direction.values()) {
+            caseArrivée = getCaseArrivee(positionDepart, direction);
+            if (deplacementValidePion(caseArrivée, direction))
+                caseDisponiblePion[caseArrivée] = true;
+        }
+
+        return caseDisponiblePion;
     }
 
     /**
