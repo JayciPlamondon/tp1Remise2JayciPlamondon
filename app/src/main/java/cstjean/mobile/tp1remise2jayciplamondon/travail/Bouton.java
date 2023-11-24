@@ -24,6 +24,11 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
     private DamierFragment damierFragment;
 
     /**
+     * L'instance de damier (à remplacer par le futur Singleton).
+     */
+    private Damier damier;
+
+    /**
      * La rangée de la case.
      */
     private int row;
@@ -50,7 +55,7 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
 
     private Pion pion = null;
 
-    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Pion pion, int id) {
+    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Pion pion, int id, Damier damier) {
         super(context);
 
         this.row = row;
@@ -60,12 +65,13 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
         this.damierFragment = damierFragment;
         this.pion = pion;
         this.id = id;
+        this.damier = damier;
 
         init();
         setButtonColor();
     }
 
-    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment) {
+    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Damier damier) {
         super(context);
 
         this.row = row;
@@ -73,6 +79,7 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
         this.position = position;
         this.isDark = isDark;
         this.damierFragment = damierFragment;
+        this.damier = damier; // À remplacer par le singleton
 
         init();
         setButtonColor();
@@ -126,11 +133,17 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
     public void mettreEnSurbrillance() {
         // Met la case en surbrillance si c'est un pion
         if (pion != null) {
-            setTileToSelectedColor();
-            damierFragment.lastSelectedTile = this;
 
-            // Surbrillance des cases disponibles pour déplacement
-            damierFragment.displayAvailableTiles(position);
+            Pion.Couleur couleurPion = pion.getCouleur();
+            if ((couleurPion == Pion.Couleur.Blanc && damier.getTourJoueur() == 1) ||
+                    couleurPion == Pion.Couleur.Noir && damier.getTourJoueur() == 2) {
+
+                setTileToSelectedColor();
+                damierFragment.lastSelectedTile = this;
+
+                // Surbrillance des cases disponibles pour déplacement
+                damierFragment.displayAvailableTiles(position);
+            }
         }
     }
 
@@ -149,7 +162,7 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
 
         if (isSelected && pion == null) {
                 System.out.println("On déplace le pion vers cette position!");
-                damierFragment.deplacerPionLayout(col);
+                damierFragment.deplacerPionLayout(row, col);
         }
 
         reinitialisationCouleur();
@@ -167,6 +180,10 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
 
     public int getPosition() {
         return position;
+    }
+
+    public int getRow() {
+        return row;
     }
 }
 

@@ -492,6 +492,7 @@ public class Damier {
                         positionArrivePrise = positionDepart + 9;
                     }
                 }
+                break;
             }
             case BasDroite : {
                 // Si Row Pair
@@ -509,6 +510,7 @@ public class Damier {
                         positionArrivePrise = positionDepart + 11;
                     }
                 }
+                break;
             }
             case HautGauche : {
                 if (rowDepart % 2 == 0) {
@@ -525,6 +527,7 @@ public class Damier {
                         positionArrivePrise = positionDepart - 11;
                     }
                 }
+                break;
             }
             case HautDroite : {
                 if (rowDepart % 2 == 0) {
@@ -541,6 +544,7 @@ public class Damier {
                         positionArrivePrise = positionDepart - 9;
                     }
                 }
+                break;
             }
         }
 
@@ -767,11 +771,13 @@ public class Damier {
         return peutDeplacerPion;
     }
 
-    public boolean deplacementValidePion(int positionArrivee, Direction direction) {
+    public boolean deplacementValidePion(int positionArrivee, Direction direction, Pion pionDeplace) {
         boolean  deplacementEstValide = true;
         if (positionArrivee == -1)
             deplacementEstValide = false;
         if (!verifierSiCaseEstVide(positionArrivee))
+            deplacementEstValide = false;
+        if (verifierSiReculons(pionDeplace, direction))
             deplacementEstValide = false;
 
         return deplacementEstValide;
@@ -780,11 +786,21 @@ public class Damier {
     public boolean[] caseDisponiblePion(int positionDepart) {
         boolean[] caseDisponiblePion = new boolean[50];
         int caseArrivée;
+        int caseArrivePrise;
 
         for (Direction direction : Direction.values()) {
             caseArrivée = getCaseArrivee(positionDepart, direction);
-            if (deplacementValidePion(caseArrivée, direction))
+            if (deplacementValidePion(caseArrivée, direction, getPion(positionDepart))) {
                 caseDisponiblePion[caseArrivée] = true;
+            }
+            else {
+                // On vérifie pour la prise
+                if (verifierSiPionEnnemi(positionDepart, direction)) {
+                    caseArrivePrise = getCaseArrivePrise(positionDepart, direction);
+                    if (verifierSiCaseEstVide(caseArrivePrise))
+                        caseDisponiblePion[caseArrivePrise] = true;
+                }
+            }
         }
 
         return caseDisponiblePion;

@@ -85,15 +85,11 @@ public class DamierFragment extends Fragment {
 
         titlePlayerTurn = new TextView(getActivity());
 
-        if (damier.getTourJoueur() == 1) {
-            titlePlayerTurn.setText("C'est le tour au blanc");
-        } else {
-            titlePlayerTurn.setText("C'est le tour au noir");
-        }
-
         // Modifie la taille du texte et le met au centre
         titlePlayerTurn.setTextSize(30);
         titlePlayerTurn.setGravity(Gravity.CENTER);
+
+        updateTitlePlayerTurn();
 
         linearLayout.addView(titlePlayerTurn);
 
@@ -114,6 +110,17 @@ public class DamierFragment extends Fragment {
 
         // Initialise le tableau avec les références des boutons
         initializeButtonsArray();
+    }
+
+    /**
+     * Update le TextView titlePlayerTurn.
+     */
+    private void updateTitlePlayerTurn() {
+        if (damier.getTourJoueur() == 1) {
+            titlePlayerTurn.setText("C'est le tour au blanc");
+        } else {
+            titlePlayerTurn.setText("C'est le tour au noir");
+        }
     }
 
     /**
@@ -141,19 +148,21 @@ public class DamierFragment extends Fragment {
     /**
      * Déplace le pion dans le layout.
      */
-    public void deplacerPionLayout(int colArrive) {
+    public void deplacerPionLayout(int rowArrive, int colArrive) {
         Damier.Direction direction;
         Pion pionDepart = lastSelectedTile.getPion();
         int positionDepart = lastSelectedTile.getPosition();
         int colDepart = lastSelectedTile.getCol();
+        int rowDepart = lastSelectedTile.getRow();
 
-        direction = calculerDirection(colArrive, colDepart, pionDepart);
+        direction = calculerDirection(rowDepart, rowArrive, colDepart, colArrive, pionDepart);
 
         try {
             damier.deplacerPion(positionDepart, direction);
             // Remove all views from the layout
             gridBoutons.removeAllViews();
             updateLayout();
+            updateTitlePlayerTurn();
         } catch (Exception e) {
             System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
         }
@@ -161,23 +170,24 @@ public class DamierFragment extends Fragment {
     }
 
     /**
-     * Détermine la direction
+     * Détermine la direction.
+     * Devrait être dans damier.
      */
-    private Damier.Direction calculerDirection(int colArrive, int colDepart, Pion pionDepart) {
+    private Damier.Direction calculerDirection(int rowDepart, int rowArrive, int colDepart, int colArrive, Pion pionDepart) {
         Damier.Direction direction;
 
         if (colArrive > colDepart) {
-            // Direction Gauche
+            // Direction Droite
             if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
                 direction = Damier.Direction.HautDroite;
             else
                 direction = Damier.Direction.BasDroite;
         } else {
-            // Direction Droite
+            // Direction Gauche
             if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
                 direction = Damier.Direction.HautGauche;
             else
-                direction = Damier.Direction.HautGauche;
+                direction = Damier.Direction.BasGauche;
         }
 
         return direction;
@@ -194,25 +204,23 @@ public class DamierFragment extends Fragment {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 int position = i * 10 + j + 1; // Calculate position based on i and j indices
-
                 // Création d'une case, si jouable, elle obtient la positionRéelle(du pion)
                 Bouton bouton;
 
                 // Remplacer le paramètre lastSelectedTile par le Singleton!!!
                 if(isDark) {
-                    bouton = new Bouton(getActivity(), i, j, positionRéelle, isDark, this, damier.getPion(positionRéelle), compteur);
+                    bouton = new Bouton(getActivity(), i, j, positionRéelle, isDark, this, damier.getPion(positionRéelle), compteur, damier);
                     bouton.setId(compteur);
                     compteur++;
                 }
                 else {
-                    bouton = new Bouton(getActivity(), i, j, position, isDark, this);
+                    bouton = new Bouton(getActivity(), i, j, position, isDark, this, damier);
                 }
 
                 // Set square attributes (size, etc.)
                 bouton.setLayoutParams(new GridLayout.LayoutParams());
                 bouton.getLayoutParams().width = 100; // Set width (in dp) as needed
                 bouton.getLayoutParams().height = 100; // Set height (in dp) as needed
-
 
                 Pion pion;
 
