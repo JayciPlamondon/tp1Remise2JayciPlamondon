@@ -156,9 +156,13 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
             return;
         }
 
+        boolean isDame = false;
+        if (pion instanceof Dame)
+            isDame = true;
+
         System.out.println("Click: row -> " + row + ", col -> " + col +
                             ", position -> " + position + ", isPlayable -> " + isDark +
-                            ", id -> " + id);
+                            ", id -> " + id + "isDame -> " + isDame);
 
         if (isSelected && pion == null) {
                 System.out.println("On déplace le pion vers cette position!");

@@ -62,6 +62,9 @@ public class DamierFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         damier.initialiser();
+        //damier.ajouterPion(16, new Pion(Pion.Couleur.Noir));
+        //damier.ajouterPion(31, new Pion(Pion.Couleur.Blanc));
+
     }
 
     @Override
@@ -155,7 +158,7 @@ public class DamierFragment extends Fragment {
         int colDepart = lastSelectedTile.getCol();
         int rowDepart = lastSelectedTile.getRow();
 
-        direction = calculerDirection(rowDepart, rowArrive, colDepart, colArrive, pionDepart);
+        direction = damier.calculerDirection(rowDepart, rowArrive, colDepart, colArrive);
 
         try {
             damier.deplacerPion(positionDepart, direction);
@@ -167,30 +170,6 @@ public class DamierFragment extends Fragment {
             System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
         }
 
-    }
-
-    /**
-     * Détermine la direction.
-     * Devrait être dans damier.
-     */
-    private Damier.Direction calculerDirection(int rowDepart, int rowArrive, int colDepart, int colArrive, Pion pionDepart) {
-        Damier.Direction direction;
-
-        if (colArrive > colDepart) {
-            // Direction Droite
-            if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
-                direction = Damier.Direction.HautDroite;
-            else
-                direction = Damier.Direction.BasDroite;
-        } else {
-            // Direction Gauche
-            if (pionDepart.getCouleur() == Pion.Couleur.Blanc)
-                direction = Damier.Direction.HautGauche;
-            else
-                direction = Damier.Direction.BasGauche;
-        }
-
-        return direction;
     }
 
     /**
@@ -233,14 +212,20 @@ public class DamierFragment extends Fragment {
                     if (pion != null) {
                         // Add an ImageView to represent the pawn on the square
                         ImageView pawn = new ImageView(getActivity());
-                        pawn.setImageResource(pion.getCouleur() == Pion.Couleur.Noir ?
-                                R.drawable.black_pawn : R.drawable.white_pawn);
+                        if (pion instanceof Dame) {
+                            pawn.setImageResource(pion.getCouleur() == Pion.Couleur.Noir ?
+                                    R.drawable.black_queen : R.drawable.white_queen);
+                        } else {
+                            pawn.setImageResource(pion.getCouleur() == Pion.Couleur.Noir ?
+                                    R.drawable.black_pawn : R.drawable.white_pawn);
+                        }
                         pawn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
                         // Add the pawn ImageView to the Bouton
                         bouton.addView(pawn);
                     }
                     positionRéelle++;
+
 
                 } else {
                     // Cases non-jouable

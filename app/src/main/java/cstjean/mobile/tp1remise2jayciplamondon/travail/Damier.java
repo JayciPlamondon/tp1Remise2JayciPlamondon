@@ -783,6 +783,35 @@ public class Damier {
         return deplacementEstValide;
     }
 
+    /**
+     * Détermine la direction.
+     */
+    public Direction calculerDirection(int rowDepart, int rowArrive, int colDepart, int colArrive) {
+        Direction direction;
+
+        if (colArrive > colDepart) {
+            // Direction Droite
+            if (rowArrive < rowDepart)
+                direction = Direction.HautDroite;
+            else
+                direction = Direction.BasDroite;
+        } else {
+            // Direction Gauche
+            if (rowArrive < rowDepart)
+                direction = Direction.HautGauche;
+            else
+                direction = Direction.BasGauche;
+        }
+
+        return direction;
+    }
+
+    /**
+     * Obtiens les cases disponibles pour un pion.
+     * @param positionDepart Représente la position de départ du pion déplacé.
+     * @return Un array de booléen pour chaque position de pion :
+     * Vrai si disponible, faux sinon.
+     */
     public boolean[] caseDisponiblePion(int positionDepart) {
         boolean[] caseDisponiblePion = new boolean[50];
         int caseArrivée;
