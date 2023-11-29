@@ -8,5 +8,5 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context="cstjean.mobile.tp1remise2jayciplamondon.MainActivity">
-
+    
 </LinearLayout>

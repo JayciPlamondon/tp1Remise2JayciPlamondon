@@ -12,7 +12,12 @@ import java.util.regex.Pattern;
  *
  * @author Jayci Plamondon
  */
-public class Damier {
+public class SingletonDamier {
+    /**
+     * Représente l'instance unique de la classe SingletonDamier.
+     */
+    private static SingletonDamier instance = null;
+
     /**
      * Tableau représentant les pions du damier. Chaque élément correspond à une position du damier.
      */
@@ -39,12 +44,22 @@ public class Damier {
      * Constructeur de la classe Damier.
      * Initialise le damier et les pions.
      */
-    public Damier() {
-        // for (int i = 1; i < 50; i++) {
-        //    listePion[i] = null;
-        // }
+    public SingletonDamier() {
+        initialiser();
 
         tourJoueur = 1;
+    }
+
+    /**
+     * Obtenez l'instance unique de la classe SingletonDamier.
+     *
+     * @return L'instance unique de la classe SingletonDamier.
+     */
+    public static SingletonDamier getInstance() {
+        if (instance == null) {
+            instance = new SingletonDamier();
+        }
+        return instance;
     }
 
     /**
@@ -124,6 +139,14 @@ public class Damier {
     }
 
     /**
+     * Get l'ArrayList logsList
+     */
+
+    public ArrayList<String> getLogsList () {
+        return logsList;
+    }
+
+    /**
      * Annule le dernier coup enregistré dans la liste des logs et récupère les informations associées.
      * Cette méthode permet de revenir en arrière dans le jeu en annulant le dernier coup joué.
      */
@@ -163,18 +186,25 @@ public class Damier {
             System.out.println("Est une prise = " + estPrise);
 
             // Si une prise, on retrouve le pion mangée
-            PionMange pionMangee = new PionMange(new Pion(Pion.Couleur.Noir), 1);
+
+            PionMange pionMangee;
             if (estPrise) {
                 // Va chercher le dernier pion mangé dans l'array de pion mangés
                 pionMangee = pionMangeList.get(pionMangeList.size() - 1);
+                int positionPionMangee = pionMangee.getPosition();
+                System.out.println("Position Pion Mangé = " + positionPionMangee);
+                System.out.println("Pion mangé = " + pionMangee.getPion());
+                pionMap.put(positionPionMangee, pionMangee.getPion());
+
+                pionMangeList.remove(pionMangeList.size() - 1);
             }
-            System.out.println("Couleur Pion Mangé = " + pionMangee.getPosition());
 
             // Faire le retour en arrière
 
             Pion pionActuel = getPion(positionActuelle);
             pionMap.remove(positionActuelle);
-            pionMap.put(positionActuelle, pionActuel);
+            pionMap.put(positionPrecedente, pionActuel);
+            changerTourJoueur();
         }
     }
 
@@ -375,7 +405,7 @@ public class Damier {
      *
      * @param pionDeplace Le pion à déplacer.
      * @param direction   La direction du déplacement.
-     * @return Vrai si le pion peut se déplacer en reculant, sinon faux.
+     * @return Vrai si le pion essais de se déplacer en reculant, sinon faux.
      */
     public boolean verifierSiReculons(Pion pionDeplace, Direction direction) {
         Pion.Couleur couleur = pionDeplace.getCouleur();
@@ -563,36 +593,73 @@ public class Damier {
      * @param direction La direction dans laquelle le pion se déplace.
      * @return La position de la case devant laquelle le pion se déplacera, ou -1 si le déplacement est impossible.
      */
-    public int getCaseAvantPrise(int positionDepart, Direction direction) {
+    public int getCaseAvantPrise(int positionDepart, int positionArriveePrise, Direction direction) {
 
         int rowDepart = getRow(positionDepart);
+        int rowArrivee = getRow(positionArriveePrise);
+        int ecartRow = Math.abs(rowDepart - rowArrivee) - 1;
         int positionArrive = 0;
+        boolean isPair = false;
+        int addition = 0;
 
         switch (direction) {
             case BasGauche : {
                 if (rowDepart % 2 != 0) {
+
                     // Déplacement impossible hautDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
-                        positionArrive = positionDepart + 4;
+                        while (ecartRow > 0) {
+                            addition += (isPair) ? 4 : 5;
+                            isPair = !isPair;
+                            ecartRow--;
+                        }
+
+                        positionArrive = positionDepart + addition;
                     }
                 } else {
-                    positionArrive = positionDepart + 5;
+                    isPair = true;
+
+                    while (ecartRow > 0) {
+                        addition += (isPair) ? 5 : 4;
+                        isPair = !isPair;
+                        ecartRow--;
+                    }
+
+                    positionArrive = positionDepart + addition;
                 }
+                break;
             }
             // RÉPÉTER LA LOGIQUE ICI AUX AUTRES
             case BasDroite : {
                 if (rowDepart % 2 != 0) {
-                    positionArrive = positionDepart + 5;
+
+                    while (ecartRow > 0) {
+                        addition += (isPair) ? 6 : 5;
+                        isPair = !isPair;
+                        ecartRow--;
+                    }
+
+                    positionArrive = positionDepart + addition;
+
                 } else {
                     // Déplacement impossible hautGauche si col 0 et row impair
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
-                        positionArrive = positionDepart + 6;
+                        isPair = true;
+
+                        while (ecartRow > 0) {
+                            addition += (isPair) ? 6 : 5;
+                            isPair = !isPair;
+                            ecartRow--;
+                        }
+
+                        positionArrive = positionDepart + addition;
                     }
                 }
+                break;
             }
             case HautGauche : {
                 if (rowDepart % 2 != 0) {
@@ -600,23 +667,55 @@ public class Damier {
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
-                        positionArrive = positionDepart - 6;
+                        while (ecartRow > 0) {
+                            addition += (isPair) ? -6 : -5;
+                            isPair = !isPair;
+                            ecartRow--;
+                        }
+
+                        positionArrive = positionDepart + addition;
                     }
                 } else {
-                    positionArrive = positionDepart - 5;
+                    isPair = true;
+
+                    while (ecartRow > 0) {
+                        addition += (isPair) ? -5 : -6;
+                        isPair = !isPair;
+                        ecartRow--;
+                    }
+
+                    positionArrive = positionDepart + addition;
                 }
+                break;
             }
             case HautDroite : {
                 if (rowDepart % 2 != 0) {
-                    positionArrive = positionDepart - 5;
+
+                    while (ecartRow > 0) {
+                        addition += (isPair) ? -4 : -5;
+                        isPair = !isPair;
+                        ecartRow--;
+                    }
+
+                    positionArrive = positionDepart + addition;
                 } else {
                     // Déplacement impossible basGauche si col 0 et row impair
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
-                        positionArrive = positionDepart - 4;
+
+                        isPair = true;
+
+                        while (ecartRow > 0) {
+                            addition += (isPair) ? -5 : -4;
+                            isPair = !isPair;
+                            ecartRow--;
+                        }
+
+                        positionArrive = positionDepart + addition;
                     }
                 }
+                break;
             }
         }
 
@@ -783,6 +882,14 @@ public class Damier {
         return deplacementEstValide;
     }
 
+    public boolean deplacementValideDame(int positionArrivee, Direction direction, Pion dameDeplace) {
+        boolean  deplacementEstValide = true;
+        if (positionArrivee == -1)
+            deplacementEstValide = false;
+
+        return deplacementEstValide;
+    }
+
     /**
      * Détermine la direction.
      */
@@ -820,14 +927,15 @@ public class Damier {
         for (Direction direction : Direction.values()) {
             caseArrivée = getCaseArrivee(positionDepart, direction);
             if (deplacementValidePion(caseArrivée, direction, getPion(positionDepart))) {
-                caseDisponiblePion[caseArrivée] = true;
+                caseDisponiblePion[caseArrivée - 1] = true;
+                System.out.println(caseDisponiblePion[49]);
             }
             else {
                 // On vérifie pour la prise
                 if (verifierSiPionEnnemi(positionDepart, direction)) {
                     caseArrivePrise = getCaseArrivePrise(positionDepart, direction);
                     if (verifierSiCaseEstVide(caseArrivePrise))
-                        caseDisponiblePion[caseArrivePrise] = true;
+                        caseDisponiblePion[caseArrivePrise - 1] = true;
                 }
             }
         }
@@ -841,26 +949,25 @@ public class Damier {
      * @param positionDepart La position de départ du mouvement.
      * @return Un tableau de cases disponibles pour le mouvement.
      */
-    public boolean[] trouverCasesDisponibles(int positionDepart) {
+    public boolean[] caseDisponibleDame(int positionDepart) {
         int positionArrivee;
         boolean[] caseDisponiblesDame = new boolean[50];
+        Pion dameDeplacee = getPion(positionDepart);
 
-        for (int i = 1; i < 50; i++) {
-            caseDisponiblesDame[i] = false;
-        }
 
         for (Direction direction : Direction.values()) {
-            // 1ier tour
+
+            // Pour chaque direction
             positionArrivee = getCaseArrivee(positionDepart, direction);
             verifierSiCaseEstVide(positionArrivee);
-            caseDisponiblesDame[positionArrivee - 1] = true;
             int positionPrecedente = positionDepart;
 
-            // jusqu'à ce que positionArrivé soit invalide (-1)
+            // jusqu'à ce que positionArrivé soit invalide (-1) dans chacune des directions
             for (;;) {
+                if (positionArrivee != 0)
+                    positionArrivee = getCaseArrivee(positionPrecedente, direction);
 
-                positionArrivee = getCaseArrivee(positionArrivee, direction);
-                if (positionArrivee == -1) {
+                if (!deplacementValideDame(positionArrivee, direction, dameDeplacee)) {
                     break;
                 }
 
@@ -906,19 +1013,19 @@ public class Damier {
         if (joueurPeutJouer(positionDepart)) {
             Pion dameDeplacee = getPion(positionDepart);
             boolean[] caseDisponiblesDame;
-            int positionAvantPrise = getCaseAvantPrise(positionDepart, direction);
-            System.out.println(positionAvantPrise);
+            int positionAvantArriveePrise = getCaseAvantPrise(positionDepart, positionArrivee, direction);
+            System.out.println(positionAvantArriveePrise);
             // Pion.Couleur couleurDameDéplacée = dameDeplacee.getCouleur();
 
             // vérifie que c'est bien une dame que le joueur veut déplacé
             if (dameDeplacee instanceof Dame) {
 
-                caseDisponiblesDame = trouverCasesDisponibles(positionDepart);
+                caseDisponiblesDame = caseDisponibleDame(positionDepart);
 
                 if (caseDisponiblesDame[positionArrivee - 1]) {
 
                     // vérifier si ce n'est pas une prise
-                    if (getPion(positionAvantPrise) == null) {
+                    if (getPion(positionAvantArriveePrise) == null) {
                         // true
 
                         // imprimerLogs
@@ -937,12 +1044,12 @@ public class Damier {
                         ajouterLogs(positionDepart, positionArrivee, true);
 
                         // logique pour la prise
-                        Pion pionMange = pionMap.get(positionAvantPrise);
-                        pionMangeList.add(new PionMange(pionMange, positionAvantPrise));
+                        Pion pionMange = pionMap.get(positionAvantArriveePrise);
+                        pionMangeList.add(new PionMange(pionMange, positionAvantArriveePrise));
 
                         pionMap.put(positionArrivee, dameDeplacee);
                         pionMap.remove(positionDepart);
-                        pionMap.remove(positionAvantPrise);
+                        pionMap.remove(positionAvantArriveePrise);
 
                         // changerLeTourDuJoueur
                         changerTourJoueur();

@@ -34,6 +34,13 @@ public class PionMange {
     public int getPosition() {
         return position;
     }
+
+    /**
+     * Obtient le pion mangé.
+     */
+    public Pion getPion() {
+        return pion;
+    }
 }
 
 

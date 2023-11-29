@@ -6,13 +6,11 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import java.util.Map;
-
-public class Bouton extends FrameLayout implements View.OnClickListener {
+public class Case extends FrameLayout implements View.OnClickListener {
 
     private static final int DARK_COLOR = Color.rgb(191, 144, 92);
     private static final int LIGHT_COLOR = Color.rgb(241, 209, 169);
-    private static final int SELECTED_COLOR = Color.rgb(100, 200, 255);
+    private static final int SELECTED_COLOR = Color.rgb(0, 255, 0);
     /**
      * Id de la case jouable.
      */
@@ -26,7 +24,7 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
     /**
      * L'instance de damier (à remplacer par le futur Singleton).
      */
-    private Damier damier;
+    private SingletonDamier singletonDamier;
 
     /**
      * La rangée de la case.
@@ -53,9 +51,15 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
      */
     private boolean isSelected = false;
 
+    /**
+     * Si la case contient une dame.
+     */
+    boolean isDame = false;
+
     private Pion pion = null;
 
-    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Pion pion, int id, Damier damier) {
+
+    public Case(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Pion pion, int id, SingletonDamier singletonDamier) {
         super(context);
 
         this.row = row;
@@ -65,13 +69,14 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
         this.damierFragment = damierFragment;
         this.pion = pion;
         this.id = id;
-        this.damier = damier;
+        this.singletonDamier = singletonDamier;
+        this.isDame = pion instanceof Dame;
 
         init();
         setButtonColor();
     }
 
-    public Bouton(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, Damier damier) {
+    public Case(Context context, int row, int col, int position, boolean isDark, DamierFragment damierFragment, SingletonDamier singletonDamier) {
         super(context);
 
         this.row = row;
@@ -79,13 +84,14 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
         this.position = position;
         this.isDark = isDark;
         this.damierFragment = damierFragment;
-        this.damier = damier; // À remplacer par le singleton
+        this.singletonDamier = singletonDamier; // À remplacer par le singleton
+        this.isDame = pion instanceof Dame;
 
         init();
         setButtonColor();
     }
 
-    public Bouton(Context context, AttributeSet attrs) {
+    public Case(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -130,23 +136,6 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
         }
     }
 
-    public void mettreEnSurbrillance() {
-        // Met la case en surbrillance si c'est un pion
-        if (pion != null) {
-
-            Pion.Couleur couleurPion = pion.getCouleur();
-            if ((couleurPion == Pion.Couleur.Blanc && damier.getTourJoueur() == 1) ||
-                    couleurPion == Pion.Couleur.Noir && damier.getTourJoueur() == 2) {
-
-                setTileToSelectedColor();
-                damierFragment.lastSelectedTile = this;
-
-                // Surbrillance des cases disponibles pour déplacement
-                damierFragment.displayAvailableTiles(position);
-            }
-        }
-    }
-
     @Override
     public void onClick(View view) {
 
@@ -156,22 +145,54 @@ public class Bouton extends FrameLayout implements View.OnClickListener {
             return;
         }
 
-        boolean isDame = false;
-        if (pion instanceof Dame)
-            isDame = true;
 
         System.out.println("Click: row -> " + row + ", col -> " + col +
                             ", position -> " + position + ", isPlayable -> " + isDark +
                             ", id -> " + id + "isDame -> " + isDame);
 
+        if (!isDame)
+            handleOnClickPion();
+        else
+            handleOnClickDame();
+
+
+    }
+
+    public void handleOnClickPion() {
         if (isSelected && pion == null) {
-                System.out.println("On déplace le pion vers cette position!");
-                damierFragment.deplacerPionLayout(row, col);
+            System.out.println("On déplace le pion vers cette position!");
+            damierFragment.deplacerPionLayout(row, col, position);
         }
 
         reinitialisationCouleur();
-
         mettreEnSurbrillance();
+    }
+
+    public void handleOnClickDame() {
+        System.out.println("Le pion clické est une dame!");
+        if (isSelected && pion == null) {
+            System.out.println("On déplace le pion vers cette position!");
+            damierFragment.deplacerPionLayout(row, col, position);
+        }
+
+        reinitialisationCouleur();
+        mettreEnSurbrillance();
+    }
+
+    public void mettreEnSurbrillance() {
+        // Met la case en surbrillance si c'est un pion
+        if (pion != null) {
+            Pion.Couleur couleurPion = pion.getCouleur();
+            if ((couleurPion == Pion.Couleur.Blanc && singletonDamier.getTourJoueur() == 1) ||
+                    couleurPion == Pion.Couleur.Noir && singletonDamier.getTourJoueur() == 2) {
+
+                setTileToSelectedColor();
+                damierFragment.lastSelectedTile = this;
+
+                // Surbrillance des cases disponibles pour déplacement
+                damierFragment.displayAvailableTiles(position, isDame);
+            }
+        }
     }
 
     public Pion getPion() {

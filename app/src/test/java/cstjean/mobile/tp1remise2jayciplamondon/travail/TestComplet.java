@@ -18,7 +18,7 @@ public class TestComplet {
      */
     public static TestSuite suite() {
         TestSuite suite = new TestSuite();
-        suite.addTestSuite(TestDamier.class);
+        suite.addTestSuite(TestSingletonDamier.class);
         suite.addTestSuite(TestPion.class);
         suite.addTestSuite(TestDame.class);
         return suite;

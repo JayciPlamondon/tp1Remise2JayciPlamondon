@@ -1,6 +1,6 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
-import android.graphics.Color;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,22 +9,19 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 
 public class DamierFragment extends Fragment {
-
-    /**
-     * Représente la grille de jeu.
-     */
-    private GridLayout gridBoutons;
 
     /**
      * Représente le linearLayout.
@@ -37,34 +34,44 @@ public class DamierFragment extends Fragment {
     private TextView titlePlayerTurn;
 
     /**
+     * Représente les déplacements en notation Manoury.
+     */
+    private TextView titleManouryNotation;
+
+    /**
+     * Représente la grille de jeu.
+     */
+    private GridLayout gridBoutons;
+
+    /**
      * Dernière case sélectionnée.
      */
-    public Bouton lastSelectedTile = null;
+    public Case lastSelectedTile = null;
 
     /**
      * Dernières cases sélectionnées par disponibilité.
      */
-    public Map<Integer, Bouton> lastSelectedTiles = new HashMap<>();
+    public Map<Integer, Case> lastSelectedTiles = new HashMap<>();
+
+    /**
+     * Représente le bouton retour en arrière.
+     */
+    private Button goingBackButton;
 
     /**
      * Instance du jeu Notakto.
      */
-    private final Damier damier = new Damier(); // à remplacer par getInstance pour le Singleton
+    private final SingletonDamier singletonDamier = SingletonDamier.getInstance();
 
     /**
      * Tableau contenant les références des boutons dans une grille de 10x10.
      */
-    private final Bouton[][] buttons = new Bouton[10][10];
+    private final Case[][] buttons = new Case[10][10];
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        damier.initialiser();
-        //damier.ajouterPion(16, new Pion(Pion.Couleur.Noir));
-        //damier.ajouterPion(31, new Pion(Pion.Couleur.Blanc));
-
     }
 
     @Override
@@ -77,8 +84,44 @@ public class DamierFragment extends Fragment {
         // Initialisation des éléments de l'interface utilisateur
         initializeUiElements(view);
 
+        goingBackButton.setEnabled(false);
+        // Crée un gestionnaire d'événements OnClickListener bouton reset
+        View.OnClickListener goingBackButtonClickListener = createGoingBackButtonClickListener();
+
+        // Définit le gestionnaire d'événements OnClickListener pour tous les boutons
+        setButtonOnClickListeners(goingBackButtonClickListener);
+
         return view;
     }
+
+    /**
+     * Crée un gestionnaire d'événements OnClickListener pour le bouton goignBackButton.
+     */
+    private View.OnClickListener createGoingBackButtonClickListener() {
+        return v -> handleResetButtonClick();
+    }
+
+    /**
+     * Définit le gestionnaire d'événements OnClickListener le bouton goingBackButton.
+     *
+     * @param listener Le gestionnaire d'événements OnClickListener à définir.
+     */
+    private void setButtonOnClickListeners(View.OnClickListener listener) {
+        goingBackButton.setOnClickListener(listener);
+    }
+
+    /**
+     * Retourne un déplacement en arrière.
+     */
+    public void handleResetButtonClick() {
+        singletonDamier.retourArriere();
+        updateLayout();
+
+        if (singletonDamier.getLogsList().size() == 0) {
+            goingBackButton.setEnabled(false);
+        }
+    }
+
 
     /**
      * Initialise les éléments de l'interface utilisateur.
@@ -86,15 +129,41 @@ public class DamierFragment extends Fragment {
     private void initializeUiElements(View view) {
         linearLayout = view.findViewById(R.id.linearLayout);
 
-        titlePlayerTurn = new TextView(getActivity());
+        // Inside your Activity class
+        int orientation = getResources().getConfiguration().orientation;
+
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            System.out.println("PORTRAIT");
+
+            titlePlayerTurn = new TextView(getActivity());
+            titleManouryNotation = new TextView(getActivity());
+            goingBackButton = new Button(getActivity());
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            System.out.println("LAND");
+
+            titlePlayerTurn = view.findViewById(R.id.titlePlayerTurn);
+            titleManouryNotation = view.findViewById(R.id.titleManouryNotation);
+            goingBackButton = view.findViewById(R.id.goingBackButton);
+        }
 
         // Modifie la taille du texte et le met au centre
-        titlePlayerTurn.setTextSize(30);
+        titlePlayerTurn.setTextSize(35);
         titlePlayerTurn.setGravity(Gravity.CENTER);
+        titleManouryNotation.setTextSize(30);
+        titleManouryNotation.setGravity(Gravity.CENTER);
+
+        updateGoingBackButton(false);
+        goingBackButton.setTextSize(30);
+        goingBackButton.setText("Retour en arrière");
+        goingBackButton.setGravity(Gravity.CENTER);
 
         updateTitlePlayerTurn();
+        updateTitleManouryNotation();
 
-        linearLayout.addView(titlePlayerTurn);
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            linearLayout.addView(titlePlayerTurn);
+            linearLayout.addView(titleManouryNotation);
+        }
 
         gridBoutons = new GridLayout(getActivity());
 
@@ -111,6 +180,9 @@ public class DamierFragment extends Fragment {
 
         linearLayout.addView(gridBoutons);
 
+        if(orientation == Configuration.ORIENTATION_PORTRAIT)
+            linearLayout.addView(goingBackButton);
+
         // Initialise le tableau avec les références des boutons
         initializeButtonsArray();
     }
@@ -119,11 +191,33 @@ public class DamierFragment extends Fragment {
      * Update le TextView titlePlayerTurn.
      */
     private void updateTitlePlayerTurn() {
-        if (damier.getTourJoueur() == 1) {
+        if (singletonDamier.getTourJoueur() == 1) {
             titlePlayerTurn.setText("C'est le tour au blanc");
         } else {
             titlePlayerTurn.setText("C'est le tour au noir");
         }
+    }
+
+    /**
+     * Update le TextView titleManouryNotation.
+     */
+    private void updateTitleManouryNotation() {
+
+        ArrayList<String> logsList = singletonDamier.getLogsList();
+
+        if (logsList.size() > 0) {
+            String lastItem = logsList.get(logsList.size() - 1);
+            titleManouryNotation.setText(lastItem);
+        } else {
+            titleManouryNotation.setText("-------");
+        }
+    }
+
+    /**
+     * Update le bouton retour en arrière.
+     */
+    private void updateGoingBackButton(boolean isEnabled) {
+        goingBackButton.setEnabled(isEnabled);
     }
 
     /**
@@ -134,16 +228,18 @@ public class DamierFragment extends Fragment {
         updateLayout();
     }
 
-    public void displayAvailableTiles(int positionDepart) {
-        boolean[] arrayCaseDisponible = damier.caseDisponiblePion(positionDepart);
+    public void displayAvailableTiles(int positionDepart, boolean isDame) {
+        boolean[] arrayCaseDisponible;
 
+        arrayCaseDisponible = isDame ? singletonDamier.caseDisponibleDame(positionDepart)
+                                     : singletonDamier.caseDisponiblePion(positionDepart);
 
-        for (int i = 1; i < 50; i++) {
-            if (arrayCaseDisponible[i]) {
+        for (int i = 1; i <= 50; i++) {
+            if (arrayCaseDisponible[i - 1]) {
                 System.out.println("position : " + i);
-                Bouton boutonRecupere = getActivity().findViewById(i);
-                boutonRecupere.setTileToSelectedColor();
-                lastSelectedTiles.put(i, boutonRecupere);
+                Case caseRecupere = getActivity().findViewById(i);
+                caseRecupere.setTileToSelectedColor();
+                lastSelectedTiles.put(i, caseRecupere);
             }
         }
     }
@@ -151,21 +247,23 @@ public class DamierFragment extends Fragment {
     /**
      * Déplace le pion dans le layout.
      */
-    public void deplacerPionLayout(int rowArrive, int colArrive) {
-        Damier.Direction direction;
+    public void deplacerPionLayout(int rowArrive, int colArrive, int positionArrive) {
+        SingletonDamier.Direction direction;
         Pion pionDepart = lastSelectedTile.getPion();
         int positionDepart = lastSelectedTile.getPosition();
         int colDepart = lastSelectedTile.getCol();
         int rowDepart = lastSelectedTile.getRow();
 
-        direction = damier.calculerDirection(rowDepart, rowArrive, colDepart, colArrive);
+        direction = singletonDamier.calculerDirection(rowDepart, rowArrive, colDepart, colArrive);
 
         try {
-            damier.deplacerPion(positionDepart, direction);
-            // Remove all views from the layout
-            gridBoutons.removeAllViews();
+            if (pionDepart instanceof Dame)
+                singletonDamier.deplacerDame(positionDepart, positionArrive, direction);
+            else
+                singletonDamier.deplacerPion(positionDepart, direction);
+
             updateLayout();
-            updateTitlePlayerTurn();
+
         } catch (Exception e) {
             System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
         }
@@ -180,26 +278,35 @@ public class DamierFragment extends Fragment {
         boolean isDark = false;
         int positionRéelle = 1;
 
+        // Enlève tous les boutons de la grille.
+        gridBoutons.removeAllViews();
+
+        // Vérifie si le tour du joueur a changé
+        updateTitlePlayerTurn();
+
+        updateTitleManouryNotation();
+        updateGoingBackButton(true);
+
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 int position = i * 10 + j + 1; // Calculate position based on i and j indices
                 // Création d'une case, si jouable, elle obtient la positionRéelle(du pion)
-                Bouton bouton;
+                Case aCase;
 
                 // Remplacer le paramètre lastSelectedTile par le Singleton!!!
                 if(isDark) {
-                    bouton = new Bouton(getActivity(), i, j, positionRéelle, isDark, this, damier.getPion(positionRéelle), compteur, damier);
-                    bouton.setId(compteur);
+                    aCase = new Case(getActivity(), i, j, positionRéelle, isDark, this, singletonDamier.getPion(positionRéelle), compteur, singletonDamier);
+                    aCase.setId(compteur);
                     compteur++;
                 }
                 else {
-                    bouton = new Bouton(getActivity(), i, j, position, isDark, this, damier);
+                    aCase = new Case(getActivity(), i, j, position, isDark, this, singletonDamier);
                 }
 
                 // Set square attributes (size, etc.)
-                bouton.setLayoutParams(new GridLayout.LayoutParams());
-                bouton.getLayoutParams().width = 100; // Set width (in dp) as needed
-                bouton.getLayoutParams().height = 100; // Set height (in dp) as needed
+                aCase.setLayoutParams(new GridLayout.LayoutParams());
+                aCase.getLayoutParams().width = 100; // Set width (in dp) as needed
+                aCase.getLayoutParams().height = 100; // Set height (in dp) as needed
 
                 Pion pion;
 
@@ -207,7 +314,7 @@ public class DamierFragment extends Fragment {
                 if (isDark) {
                     // Ajout de pions ici
 
-                    pion = damier.getPion(positionRéelle);
+                    pion = singletonDamier.getPion(positionRéelle);
 
                     if (pion != null) {
                         // Add an ImageView to represent the pawn on the square
@@ -222,7 +329,7 @@ public class DamierFragment extends Fragment {
                         pawn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
                         // Add the pawn ImageView to the Bouton
-                        bouton.addView(pawn);
+                        aCase.addView(pawn);
                     }
                     positionRéelle++;
 
@@ -231,8 +338,8 @@ public class DamierFragment extends Fragment {
                     // Cases non-jouable
                 }
 
-                gridBoutons.addView(bouton); // Add the square to the GridLayout
-                buttons[i][j] = bouton; // Store the square reference in your buttons array
+                gridBoutons.addView(aCase); // Add the square to the GridLayout
+                buttons[i][j] = aCase; // Store the square reference in your buttons array
 
                 isDark = !isDark; // Toggle between dark and light colors
             }

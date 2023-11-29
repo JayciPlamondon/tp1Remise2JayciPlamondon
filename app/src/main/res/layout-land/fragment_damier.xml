@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context="cstjean.mobile.tp1remise2jayciplamondon.MainActivity">
+    android:orientation="horizontal">
 
-    <TextView
+    <!-- Left vertical layout for static views -->
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginRight="35dp">
+
+        <!-- Title for player turn -->
+        <TextView
+            android:id="@+id/titlePlayerTurn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="35sp"
+            android:gravity="center"
+            android:text="C'est le tour au blanc" />
+
+        <!-- Manoury Notation -->
+        <TextView
+            android:id="@+id/titleManouryNotation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:gravity="center"
+            android:text="-------" />
+
+        <!-- Button for going back -->
+        <Button
+            android:id="@+id/goingBackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:text="Retour en arrière"
+            android:gravity="center" />
+
+    </LinearLayout>
 
 </LinearLayout>
