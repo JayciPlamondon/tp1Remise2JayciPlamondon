@@ -1,8 +1,10 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.Gravity;
@@ -22,6 +24,22 @@ import java.util.Map;
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 
 public class DamierFragment extends Fragment {
+    public interface Callbacks {
+        String getPlayer1Name();
+        String getPlayer2Name();
+    }
+
+    public Callbacks callbacks = null;
+
+    /**
+     * Représente le nom du joueur 1.
+     */
+    String player1Name;
+
+    /**
+     * Représente le nom du joueur 2.
+     */
+    String player2Name;
 
     /**
      * Représente le linearLayout.
@@ -68,6 +86,16 @@ public class DamierFragment extends Fragment {
      */
     private final Case[][] buttons = new Case[10][10];
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        callbacks = (Callbacks) context;
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +105,10 @@ public class DamierFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // On va chercher les noms des deux joueurs
+        player1Name = callbacks.getPlayer1Name();
+        player2Name = callbacks.getPlayer2Name();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_damier, container, false);
@@ -93,6 +125,22 @@ public class DamierFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isGoingBackButtonEnabled", goingBackButton.isEnabled());
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            boolean isGoingBackButtonEnabled = savedInstanceState.getBoolean("isGoingBackButtonEnabled", false);
+            updateGoingBackButton(isGoingBackButtonEnabled);
+        }
+    }
+
 
     /**
      * Crée un gestionnaire d'événements OnClickListener pour le bouton goignBackButton.
@@ -192,9 +240,9 @@ public class DamierFragment extends Fragment {
      */
     private void updateTitlePlayerTurn() {
         if (singletonDamier.getTourJoueur() == 1) {
-            titlePlayerTurn.setText("C'est le tour au blanc");
+            titlePlayerTurn.setText("C'est le tour à " + player1Name);
         } else {
-            titlePlayerTurn.setText("C'est le tour au noir");
+            titlePlayerTurn.setText("C'est le tour à " + player2Name);
         }
     }
 
