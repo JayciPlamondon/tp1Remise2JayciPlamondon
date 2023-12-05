@@ -12,6 +12,11 @@ public class Pion {
     private final Couleur couleur;
 
     /**
+     * Si c'est la première fois que le pion se rend au bout.a
+     */
+    private boolean premierFoisBout;
+
+    /**
      * Constructeur de la classe Pion qui prend en paramètre la couleur du pion.
      *
      * @param couleur La couleur du pion.
@@ -26,6 +31,8 @@ public class Pion {
     public Pion() {
         // Crée un pion blanc par défaut
         this(Couleur.Blanc);
+
+        premierFoisBout = true;
     }
 
     /**
@@ -52,6 +59,20 @@ public class Pion {
         }
 
         return representation;
+    }
+
+    /**
+     * Set premierFoisAuBout à false.
+     */
+    public void setPremierFoisBoutFalse() {
+        premierFoisBout = false;
+    }
+
+    /**
+     * Get premierFoisAuBout.
+     */
+    public boolean getPremierFoisAuBout() {
+        return premierFoisBout;
     }
 
     /**

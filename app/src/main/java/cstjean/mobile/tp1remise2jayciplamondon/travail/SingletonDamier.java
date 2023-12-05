@@ -31,6 +31,13 @@ public class SingletonDamier {
     private List<PionMange> pionMangeList = new ArrayList<>();
 
     /**
+     * Une Map associant des entiers (positions) à des pions représentant les pions
+     * qui ont été transformés en dame lors du jeu. La clé de la map est la position où le pion
+     * a été transformé, et la valeur associée est le pion transformé.
+     */
+    private List<PionTransforme> pionTransformeList = new ArrayList<>();
+
+    /**
      * Indique le tour du joueur en cours. 1 pour le joueur blanc, 2 pour le joueur noir.
      */
     private int tourJoueur;
@@ -45,8 +52,11 @@ public class SingletonDamier {
      * Initialise le damier et les pions.
      */
     public SingletonDamier() {
-        initialiser();
 
+        //initialiser();
+        System.out.println("TOUR JOUEUR : " + tourJoueur);
+        ajouterPion(32, new Pion(Pion.Couleur.Noir));
+        ajouterPion(28, new Pion(Pion.Couleur.Blanc));
         tourJoueur = 1;
     }
 
@@ -181,6 +191,37 @@ public class SingletonDamier {
             int positionActuelle = chiffres.get(1);
             System.out.println("Position actuelle = " + positionActuelle);
 
+            Pion pionActuel = getPion(positionActuelle);
+
+            /* RETOUR EN ARRIÈRE TRANSFORMATION DAME
+            PionTransforme pionTransforme = null;
+
+            // Est une transformation en dame
+            if (pionActuel instanceof Dame) {
+
+
+                int positionPionTransforme;
+
+                    // Va chercher le dernier pion mangé dans l'array de pion transformés
+                    pionTransforme = pionTransformeList.get(pionTransformeList.size() - 1);
+                    positionPionTransforme = pionTransforme.getPosition();
+
+                    if (positionPionTransforme == positionPrecedente &&
+                            pionTransforme.getCouleur() == pionActuel.getCouleur()) {
+                        System.out.println("YES!");
+                    }
+
+
+
+                    System.out.println("Position Pion Transformé = " + positionPionTransforme);
+                    System.out.println("Pion Transformé = " + pionTransforme.getPion());
+                    pionMap.put(positionPionTransforme, pionTransforme.getPion());
+
+                    pionTransformeList.remove(pionTransformeList.size() - 1);
+            }
+            */
+
+
             // Est une prise
             boolean estPrise = dernierCoup.contains("x");
             System.out.println("Est une prise = " + estPrise);
@@ -201,7 +242,15 @@ public class SingletonDamier {
 
             // Faire le retour en arrière
 
-            Pion pionActuel = getPion(positionActuelle);
+            /* TRANSFORMATION EN DAME
+            if (pionTransforme != null) {
+                pionMap.remove(positionActuelle);
+                pionMap.put(positionPrecedente, pionTransforme.getPion());
+                changerTourJoueur();
+            }
+
+             */
+
             pionMap.remove(positionActuelle);
             pionMap.put(positionPrecedente, pionActuel);
             changerTourJoueur();
@@ -210,28 +259,28 @@ public class SingletonDamier {
 
     /**
      * Vérifie si un joueur a gagné la partie et affiche un message approprié.
+    */
 
-    public void verifierSiGagnant() {
-        int nombrePionsBlancs = getNombrePionsCouleur(Pion.Couleur.Blanc);
-        int nombrePionsNoirs = getNombrePionsCouleur(Pion.Couleur.Noir);
+    public WinningPlayer verifierSiGagnant() {
+        WinningPlayer winner = WinningPlayer.NONE;
 
-        // Vérification de la fin de la partie
         if (getNombrePionsCouleur(Pion.Couleur.Blanc) == 0) {
             System.out.println("Le joueur Noir a remporté la partie !");
-
-            //Insérer logique fin de partie
-
+            winner = WinningPlayer.BLACK;
         } else if (getNombrePionsCouleur(Pion.Couleur.Noir) == 0) {
             System.out.println("Le joueur Blanc a remporté la partie !");
-            //Insérer logique fin de partie
-
-        } else {
-            System.out.println("Les deux joueurs peuvent continuer à jouer !\n" +
-                    "Pions blancs restant : " + nombrePionsBlancs + "\n" +
-                    "Pions noirs restant : " + nombrePionsNoirs + "\n");
+            winner = WinningPlayer.WHITE;
         }
+
+        return winner;
     }
-*/
+
+    public enum WinningPlayer {
+        BLACK,
+        WHITE,
+        NONE // If the game is not yet won
+    }
+
     /**
      * Renvoie le nombre total de pions présents sur le damier, qu'ils soient blancs ou noirs.
      *
@@ -244,14 +293,29 @@ public class SingletonDamier {
     /**
      * Initialise le damier en plaçant les pions noirs aux positions 1 à 20
      * et les pions blancs aux positions 31 à 50 conformément aux règles du jeu.
+     * Le joueur jouant les pions blancs commence.
      */
     public void initialiser() {
+        // Les blancs commencent (tourJoueur = 1)
+        resetBoard();
+
+        tourJoueur = 1;
+
         for (int i = 1; i <= 20; i++) {
             ajouterPion(i, new Pion(Pion.Couleur.Noir));
         }
 
         for (int i = 31; i <= 50; i++) {
             ajouterPion(i, new Pion(Pion.Couleur.Blanc));
+        }
+    }
+
+    /**
+     * Vide le tableau de tout ses pions.
+     */
+    public void resetBoard() {
+        for (int i = 1; i <= 50; i++) {
+            ajouterPion(i, null);
         }
     }
 
@@ -820,6 +884,11 @@ public class SingletonDamier {
                         // vérification si peutTransformer après le déplacement
                         if (peutTransformer(positionArrivee)) {
                             // true peut transformer
+
+                            Pion pionTransforme = pionMap.get(positionArrivee);
+                            pionTransformeList.add(new PionTransforme(pionTransforme,
+                                    positionArrivee));
+
                             transformerEnDame(positionArrivee);
                         }
                         // changerLeTourDuJoueur
@@ -850,6 +919,11 @@ public class SingletonDamier {
                             // vérification si peutTransformer après le déplacement de prise
                             if (peutTransformer(positionArriveePrise)) {
                                 // true peut transformer
+
+                                Pion pionTransforme = pionMap.get(positionArrivee);
+                                pionTransformeList.add(new PionTransforme(pionTransforme,
+                                        positionArrivee));
+
                                 transformerEnDame(positionArriveePrise);
                             }
 
