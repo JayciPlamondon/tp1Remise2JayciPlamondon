@@ -8,12 +8,12 @@ public class PionMange {
     /**
      * Le pion mangé.
      */
-    private Pion pion;
+    private final Pion pion;
 
     /**
      * La position du pion mangé.
      */
-    private int position;
+    private final int position;
 
     /**
      * Constructeur de la classe PionMange.
@@ -37,6 +37,8 @@ public class PionMange {
 
     /**
      * Obtient le pion mangé.
+     *
+     * @return Le pion mangé.
      */
     public Pion getPion() {
         return pion;

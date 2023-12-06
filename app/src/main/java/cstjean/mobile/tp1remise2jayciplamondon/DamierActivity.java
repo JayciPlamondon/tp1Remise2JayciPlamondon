@@ -1,24 +1,34 @@
 package cstjean.mobile.tp1remise2jayciplamondon;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-
+import androidx.appcompat.app.AppCompatActivity;
 import cstjean.mobile.tp1remise2jayciplamondon.travail.DamierFragment;
 
+/**
+ * La classe DamierActivity représente l'activity Damier.
+ *
+ * @author Jayci Plamondon
+ */
 public class DamierActivity extends AppCompatActivity implements DamierFragment.Callbacks {
 
     /**
      * Représente le nom du joueur 1.
      */
-    String player1Name;
+    private String player1Name;
 
     /**
      * Représente le nom du joueur 2.
      */
-    String player2Name;
+    private String player2Name;
 
+    /**
+     * Nom de la clé pour stocker le nom du joueur 1.
+     */
     private static final String PLAYER1NAME = "player1name";
+
+    /**
+     * Nom de la clé pour stocker le nom du joueur 2.
+     */
     private static final String PLAYER2NAME = "player2name";
 
     @Override
@@ -36,5 +46,7 @@ public class DamierActivity extends AppCompatActivity implements DamierFragment.
     }
 
     @Override
-    public String getPlayer2Name() { return player2Name; }
+    public String getPlayer2Name() {
+        return player2Name;
+    }
 }

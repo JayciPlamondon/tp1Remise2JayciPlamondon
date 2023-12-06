@@ -1,5 +1,7 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
+import androidx.annotation.Nullable;
+
 /**
  * Cette classe représente un pion transformé avec sa position.
  */
@@ -8,17 +10,17 @@ public class PionTransforme {
     /**
      * Le pion transformé.
      */
-    private Pion pion;
+    private final Pion pion;
 
     /**
      * La position du pion transformé.
      */
-    private int position;
+    private final int position;
 
     /**
      * La couleur du pion transformé.
      */
-    private Pion.Couleur couleur;
+    private @Nullable Pion.Couleur couleur = null;
 
     /**
      * Constructeur de la classe PionTransformé.
@@ -29,7 +31,9 @@ public class PionTransforme {
     public PionTransforme(Pion pion, int position) {
         this.pion = pion;
         this.position = position;
-        couleur = pion.getCouleur();
+        if (pion != null) {
+            couleur = pion.getCouleur();
+        }
     }
 
     /**
@@ -43,6 +47,8 @@ public class PionTransforme {
 
     /**
      * Obtient le pion transformé.
+     *
+     * @return Le pion transformé.
      */
     public Pion getPion() {
         return pion;
@@ -50,6 +56,8 @@ public class PionTransforme {
 
     /**
      * Obtient la couleur du pion transformé.
+     *
+     * @return La couleur du pion transformé.
      */
     public Pion.Couleur getCouleur() {
         return couleur;

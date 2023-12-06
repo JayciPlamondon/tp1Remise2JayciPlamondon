@@ -1,45 +1,42 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.appcompat.app.AppCompatActivity;
 import cstjean.mobile.tp1remise2jayciplamondon.DamierActivity;
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 
+/**
+ * La classe InscriptionActivity représente l'activity Inscription.
+ *
+ * @author Jayci Plamondon
+ */
 public class InscriptionActivity extends AppCompatActivity {
 
+    /**
+     * Nom de la clé pour stocker le nom du joueur 1.
+     */
     private static final String PLAYER1NAME = "player1name";
-    private static final String PLAYER2NAME = "player2name";
 
     /**
-     * Représente le bouton démarrer la partie.
+     * Nom de la clé pour stocker le nom du joueur 2.
      */
-    Button startGameButton;
+    private static final String PLAYER2NAME = "player2name";
 
     /**
      * Représente le TextView pour le nom du joueur 1.
      */
-    EditText editPlayer1Name;
+    private EditText editPlayer1Name;
 
     /**
      * Représente le TextView pour le nom du joueur 2.
      */
-    EditText editPlayer2Name;
+    private EditText editPlayer2Name;
 
-    /**
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,10 +47,8 @@ public class InscriptionActivity extends AppCompatActivity {
         editPlayer2Name = findViewById(R.id.editTextPlayer2);
 
         // Va chercher startGameButton
-        startGameButton = findViewById(R.id.startGameButton);
 
-        // Crée un gestionnaire d'événements OnClickListener startGameButton
-        View.OnClickListener startGameButtonClickListener = createStartGameButtonClickListener();
+        Button startGameButton = findViewById(R.id.startGameButton);
 
         // Définit le gestionnaire d'événements OnClickListener pour startGameButton
         startGameButton.setOnClickListener(createStartGameButtonClickListener());

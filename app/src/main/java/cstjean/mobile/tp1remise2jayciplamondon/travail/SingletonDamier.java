@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,9 +56,10 @@ public class SingletonDamier {
 
         initialiser();
         System.out.println("TOUR JOUEUR : " + tourJoueur);
-        //ajouterPion(32, new Pion(Pion.Couleur.Noir));
-        //ajouterPion(28, new Pion(Pion.Couleur.Blanc));
-        //tourJoueur = 1;
+
+        // ajouterPion(32, new Pion(Pion.Couleur.Noir));
+        // ajouterPion(28, new Pion(Pion.Couleur.Blanc));
+        // tourJoueur = 1;
     }
 
     /**
@@ -149,10 +151,11 @@ public class SingletonDamier {
     }
 
     /**
-     * Get l'ArrayList logsList
+     * Get l'ArrayList logsList.
+     *
+     * @return La liste des logs.
      */
-
-    public ArrayList<String> getLogsList () {
+    public ArrayList<String> getLogsList() {
         return logsList;
     }
 
@@ -190,8 +193,6 @@ public class SingletonDamier {
             // Position actuelle
             int positionActuelle = chiffres.get(1);
             System.out.println("Position actuelle = " + positionActuelle);
-
-            Pion pionActuel = getPion(positionActuelle);
 
             /* RETOUR EN ARRIÈRE TRANSFORMATION DAME
             PionTransforme pionTransforme = null;
@@ -251,6 +252,8 @@ public class SingletonDamier {
 
              */
 
+            Pion pionActuel = getPion(positionActuelle);
+
             pionMap.remove(positionActuelle);
             pionMap.put(positionPrecedente, pionActuel);
             changerTourJoueur();
@@ -259,8 +262,9 @@ public class SingletonDamier {
 
     /**
      * Vérifie si un joueur a gagné la partie et affiche un message approprié.
+     *
+     * @return La couleur du joueur gagnant.
     */
-
     public WinningPlayer verifierSiGagnant() {
         WinningPlayer winner = WinningPlayer.NONE;
 
@@ -275,7 +279,7 @@ public class SingletonDamier {
         }
 
         // On vérifie s'il reste des déplacements on joueur du tour courant
-
+/*
         for (Map.Entry<Integer, Pion> entry : pionMap.entrySet()) {
             int key = entry.getKey();
             Pion pion = entry.getValue();
@@ -320,13 +324,29 @@ public class SingletonDamier {
                 }
             }
         }
+
+ */
         return winner;
     }
 
+    /**
+     * Représente le joueur gagnant dans un jeu.
+     */
     public enum WinningPlayer {
+        /**
+         * Joueur avec les pièces noires.
+         */
         BLACK,
+
+        /**
+         * Joueur avec les pièces blanches.
+         */
         WHITE,
-        NONE // If the game is not yet won
+
+        /**
+         * Indique que le jeu n'est pas encore gagné.
+         */
+        NONE
     }
 
     /**
@@ -546,12 +566,11 @@ public class SingletonDamier {
      * @return La position d'arrivée du déplacement.
      */
     public int getCaseArrivee(int positionDepart, Direction direction) {
-
         int rowDepart = getRow(positionDepart);
         int positionArrive = 0;
 
         switch (direction) {
-            case BasGauche : {
+            case BasGauche:
                 if (rowDepart % 2 == 0) {
                     positionArrive = positionDepart + 5;
                 } else {
@@ -563,8 +582,7 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case BasDroite : {
+            case BasDroite:
                 if (rowDepart % 2 == 0) {
                     // Déplacement impossible basDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
@@ -576,8 +594,7 @@ public class SingletonDamier {
                     positionArrive = positionDepart + 5;
                 }
                 break;
-            }
-            case HautGauche : {
+            case HautGauche:
                 if (rowDepart % 2 == 0) {
                     positionArrive = positionDepart - 5;
                 } else {
@@ -589,8 +606,7 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case HautDroite : {
+            case HautDroite:
                 if (rowDepart % 2 == 0) {
                     // Déplacement impossible hautDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
@@ -601,13 +617,10 @@ public class SingletonDamier {
                 } else {
                     positionArrive = positionDepart - 5;
                 }
-            }
-
-            break;
-        }
-
-        if (positionArrive > 50 || positionArrive < 1) {
-            positionArrive = -1;
+                break;
+            default:
+                positionArrive = -9999;
+                break;
         }
 
         return positionArrive;
@@ -627,7 +640,7 @@ public class SingletonDamier {
         int positionArrivePrise = 0;
 
         switch (direction) {
-            case BasGauche : {
+            case BasGauche:
                 if (rowDepart % 2 == 0) {
                     // Déplacement impossible basGauche si col 0 et row pair
                     if (colDepart == 0) {
@@ -644,8 +657,7 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case BasDroite : {
+            case BasDroite:
                 // Si Row Pair
                 if (rowDepart % 2 == 0) {
                     // Déplacement impossible basDroite si col 4 et row pair
@@ -662,8 +674,7 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case HautGauche : {
+            case HautGauche:
                 if (rowDepart % 2 == 0) {
                     if (colDepart == 0) {
                         positionArrivePrise = -1;
@@ -679,8 +690,7 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case HautDroite : {
+            case HautDroite:
                 if (rowDepart % 2 == 0) {
                     // Déplacement impossible hautDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
@@ -696,7 +706,9 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
+            default:
+                positionArrivePrise = -9999;
+                break;
         }
 
         if (positionArrivePrise > 50 || positionArrivePrise < 1) {
@@ -711,6 +723,7 @@ public class SingletonDamier {
      * se déplacera dans une direction donnée à partir d'une position de départ.
      *
      * @param positionDepart La position de départ du pion.
+     * @param positionArriveePrise La position d'arrivé à la prise.
      * @param direction La direction dans laquelle le pion se déplace.
      * @return La position de la case devant laquelle le pion se déplacera, ou -1 si le déplacement est impossible.
      */
@@ -724,7 +737,7 @@ public class SingletonDamier {
         int addition = 0;
 
         switch (direction) {
-            case BasGauche : {
+            case BasGauche:
                 if (rowDepart % 2 != 0) {
 
                     // Déplacement impossible hautDroite si col 4 et row pair
@@ -751,9 +764,9 @@ public class SingletonDamier {
                     positionArrive = positionDepart + addition;
                 }
                 break;
-            }
+
             // RÉPÉTER LA LOGIQUE ICI AUX AUTRES
-            case BasDroite : {
+            case BasDroite:
                 if (rowDepart % 2 != 0) {
 
                     while (ecartRow > 0) {
@@ -781,8 +794,8 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
-            case HautGauche : {
+
+            case HautGauche:
                 if (rowDepart % 2 != 0) {
                     // Déplacement impossible basDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
@@ -808,8 +821,7 @@ public class SingletonDamier {
                     positionArrive = positionDepart + addition;
                 }
                 break;
-            }
-            case HautDroite : {
+            case HautDroite:
                 if (rowDepart % 2 != 0) {
 
                     while (ecartRow > 0) {
@@ -837,7 +849,8 @@ public class SingletonDamier {
                     }
                 }
                 break;
-            }
+            default:
+                positionArrive = -9999;
         }
 
         if (positionArrive > 50 || positionArrive < 1) {
@@ -993,80 +1006,75 @@ public class SingletonDamier {
             }
         }
 
-        if (!peutDeplacerPion)
-            System.out.println("Déplcementimpossible");
-        else
-            System.out.println("Déplacement possible");
-
         return peutDeplacerPion;
     }
 
+    /**
+     * Vérifie si le déplacement du pion vers une position donnée dans une direction donnée est valide.
+     *
+     * @param positionArrivee La position d'arrivée du déplacement du pion.
+     * @param direction        La direction du déplacement.
+     * @param pionDeplace      Le pion déplacé.
+     * @return true si le déplacement est valide, false sinon.
+     */
     public boolean deplacementValidePion(int positionArrivee, Direction direction, Pion pionDeplace) {
-        boolean  deplacementEstValide = true;
-        if (positionArrivee == -1)
-            deplacementEstValide = false;
-        if (!verifierSiCaseEstVide(positionArrivee))
-            deplacementEstValide = false;
-        if (verifierSiReculons(pionDeplace, direction))
-            deplacementEstValide = false;
-
-        return deplacementEstValide;
-    }
-
-    public boolean deplacementValideDame(int positionArrivee, Direction direction, Pion dameDeplace) {
-        boolean  deplacementEstValide = true;
-        if (positionArrivee == -1)
-            deplacementEstValide = false;
-
-        return deplacementEstValide;
+        return !(positionArrivee == -1 ||
+                !verifierSiCaseEstVide(positionArrivee) ||
+                verifierSiReculons(pionDeplace, direction));
     }
 
     /**
-     * Détermine la direction.
+     * Vérifie si le déplacement de la dame vers une position donnée dans une direction donnée est valide.
+     *
+     * @param positionArrivee La position d'arrivée du déplacement de la dame.
+     * @return true si le déplacement est valide, false sinon.
+     */
+    public boolean deplacementValideDame(int positionArrivee) {
+        return positionArrivee != -1;
+    }
+
+    /**
+     * Calcule et retourne la direction à partir des positions de départ et d'arrivée.
+     *
+     * @param rowDepart    La ligne de départ.
+     * @param rowArrive    La ligne d'arrivée.
+     * @param colDepart    La colonne de départ.
+     * @param colArrive    La colonne d'arrivée.
+     * @return La direction calculée.
      */
     public Direction calculerDirection(int rowDepart, int rowArrive, int colDepart, int colArrive) {
         Direction direction;
-
         if (colArrive > colDepart) {
-            // Direction Droite
-            if (rowArrive < rowDepart)
-                direction = Direction.HautDroite;
-            else
-                direction = Direction.BasDroite;
+            direction = (rowArrive < rowDepart) ? Direction.HautDroite : Direction.BasDroite;
         } else {
-            // Direction Gauche
-            if (rowArrive < rowDepart)
-                direction = Direction.HautGauche;
-            else
-                direction = Direction.BasGauche;
+            direction = (rowArrive < rowDepart) ? Direction.HautGauche : Direction.BasGauche;
         }
-
         return direction;
     }
 
     /**
-     * Obtiens les cases disponibles pour un pion.
-     * @param positionDepart Représente la position de départ du pion déplacé.
-     * @return Un array de booléen pour chaque position de pion :
-     * Vrai si disponible, faux sinon.
-     */
+    * Obtiens les cases disponibles pour un pion.
+    *
+    * @param positionDepart Représente la position de départ du pion déplacé.
+    * @return Un array de booléen pour chaque position de pion.
+    */
     public boolean[] caseDisponiblePion(int positionDepart) {
         boolean[] caseDisponiblePion = new boolean[50];
-        int caseArrivée;
+        int caseArrivee;
         int caseArrivePrise;
 
         for (Direction direction : Direction.values()) {
-            caseArrivée = getCaseArrivee(positionDepart, direction);
-            if (deplacementValidePion(caseArrivée, direction, getPion(positionDepart))) {
-                caseDisponiblePion[caseArrivée - 1] = true;
+            caseArrivee = getCaseArrivee(positionDepart, direction);
+            if (deplacementValidePion(caseArrivee, direction, getPion(positionDepart))) {
+                caseDisponiblePion[caseArrivee - 1] = true;
                 System.out.println(caseDisponiblePion[49]);
-            }
-            else {
+            } else {
                 // On vérifie pour la prise
                 if (verifierSiPionEnnemi(positionDepart, direction)) {
                     caseArrivePrise = getCaseArrivePrise(positionDepart, direction);
-                    if (verifierSiCaseEstVide(caseArrivePrise))
+                    if (verifierSiCaseEstVide(caseArrivePrise)) {
                         caseDisponiblePion[caseArrivePrise - 1] = true;
+                    }
                 }
             }
         }
@@ -1085,7 +1093,6 @@ public class SingletonDamier {
         boolean[] caseDisponiblesDame = new boolean[50];
         Pion dameDeplacee = getPion(positionDepart);
 
-
         for (Direction direction : Direction.values()) {
 
             // Pour chaque direction
@@ -1095,10 +1102,11 @@ public class SingletonDamier {
 
             // jusqu'à ce que positionArrivé soit invalide (-1) dans chacune des directions
             for (;;) {
-                if (positionArrivee != 0)
+                if (positionArrivee != 0) {
                     positionArrivee = getCaseArrivee(positionPrecedente, direction);
+                }
 
-                if (!deplacementValideDame(positionArrivee, direction, dameDeplacee)) {
+                if (!deplacementValideDame(positionArrivee)) {
                     break;
                 }
 
@@ -1110,17 +1118,20 @@ public class SingletonDamier {
                     // vérification si c'est un pion allié
                     Pion.Couleur couleurPionDepart = getPion(positionDepart).getCouleur();
 
-                    if (pionMap.get(positionArrivee).getCouleur() != couleurPionDepart) {
-                        // Pion d'arrivé est ennemi, alors prise possible si la nouvelle case d'arrivé est null
+                    if (pionMap.get(positionArrivee) != null) {
+                        if (Objects.requireNonNull(pionMap.get(positionArrivee)).getCouleur() != couleurPionDepart) {
+                            // Pion d'arrivé est ennemi, alors prise possible si la nouvelle case d'arrivé est null
 
-                        // calcule la case d'arrivée en prise
-                        int positionArriveePrise;
-                        positionArriveePrise = getCaseArrivePrise(positionPrecedente, direction);
+                            // calcule la case d'arrivée en prise
+                            int positionArriveePrise;
+                            positionArriveePrise = getCaseArrivePrise(positionPrecedente, direction);
 
-                        if (verifierSiCaseEstVide(positionArriveePrise) && positionArriveePrise != -1) {
-                            caseDisponiblesDame[positionArriveePrise - 1] = true;
+                            if (verifierSiCaseEstVide(positionArriveePrise) && positionArriveePrise != -1) {
+                                caseDisponiblesDame[positionArriveePrise - 1] = true;
+                            }
                         }
                     }
+
                     break;
                 }
             }
@@ -1190,7 +1201,6 @@ public class SingletonDamier {
                 }
             }
         }
-
         return peutDeplacerDame;
     }
 

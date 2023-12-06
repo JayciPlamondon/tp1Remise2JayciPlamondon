@@ -1,5 +1,6 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -110,11 +111,6 @@ public class DamierFragment extends Fragment {
      */
     private SingletonDamier.WinningPlayer joueurGagnantSiFin = SingletonDamier.WinningPlayer.NONE;
 
-    /**
-     * Tableau contenant les références des boutons dans une grille de 10x10.
-     */
-    private final Case[][] buttons = new Case[10][10];
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -157,7 +153,7 @@ public class DamierFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("isGoingBackButtonEnabled", goingBackButton.isEnabled());
     }
@@ -203,9 +199,7 @@ public class DamierFragment extends Fragment {
      * Initialise les éléments de l'interface utilisateur.
      */
     private void initializeUiElements(View view) {
-        /**
-         * Représente le linearLayout.
-         */
+
         LinearLayout linearLayout = view.findViewById(R.id.linearLayout);
 
         // Inside your Activity class
@@ -233,7 +227,7 @@ public class DamierFragment extends Fragment {
 
         updateGoingBackButton(false);
         goingBackButton.setTextSize(30);
-        goingBackButton.setText("Retour en arrière");
+        goingBackButton.setText(R.string.texte_retour_arriere);
         goingBackButton.setGravity(Gravity.CENTER);
 
         updateTitlePlayerTurn();
@@ -270,6 +264,7 @@ public class DamierFragment extends Fragment {
     /**
      * Update le TextView titlePlayerTurn.
      */
+    @SuppressLint("SetTextI18n")
     private void updateTitlePlayerTurn() {
         if (singletonDamier.getTourJoueur() == 1) {
             titlePlayerTurn.setText("C'est le tour à \n" + player1Name);
@@ -342,7 +337,7 @@ public class DamierFragment extends Fragment {
         for (int i = 1; i <= 50; i++) {
             if (arrayCaseDisponible[i - 1]) {
                 System.out.println("position : " + i);
-                Case caseRecupere = getActivity().findViewById(i);
+                Case caseRecupere = requireActivity().findViewById(i);
                 caseRecupere.setTileToSelectedColor();
                 lastSelectedTiles.put(i, caseRecupere);
             }
@@ -371,7 +366,6 @@ public class DamierFragment extends Fragment {
             } else {
                 singletonDamier.deplacerPion(positionDepart, direction);
             }
-
             updateLayout();
         } catch (Exception e) {
             System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
@@ -410,7 +404,7 @@ public class DamierFragment extends Fragment {
         Fragment finDePartieFragment = new FinPartieFragment();
         finDePartieFragment.setArguments(bundle);
 
-        FragmentTransaction fm = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fm = requireActivity().getSupportFragmentManager().beginTransaction();
         fm.replace(R.id.fragment_container, finDePartieFragment).commit();
     }
 
@@ -439,12 +433,12 @@ public class DamierFragment extends Fragment {
 
                 // Remplacer le paramètre lastSelectedTile par le Singleton!!!
                 if (isDark) {
-                    caseDamier = new Case(getActivity(), i, j, positionReelle, isDark,
+                    caseDamier = new Case(getActivity(), i, j, positionReelle, true,
                             this, singletonDamier.getPion(positionReelle), compteur, singletonDamier);
                     caseDamier.setId(compteur);
                     compteur++;
                 } else {
-                    caseDamier = new Case(getActivity(), i, j, position, isDark, this, singletonDamier);
+                    caseDamier = new Case(getActivity(), i, j, position, false, this, singletonDamier);
                 }
 
                 // Set square attributes (size, etc.)
@@ -480,7 +474,6 @@ public class DamierFragment extends Fragment {
                 }
 
                 gridBoutons.addView(caseDamier); // Add the square to the GridLayout
-                buttons[i][j] = caseDamier; // Store the square reference in your buttons array
 
                 isDark = !isDark; // Toggle between dark and light colors
             }
