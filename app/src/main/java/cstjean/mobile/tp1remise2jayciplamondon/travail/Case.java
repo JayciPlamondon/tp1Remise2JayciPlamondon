@@ -192,14 +192,16 @@ public class Case extends FrameLayout implements View.OnClickListener {
      * Réinitialise la couleur de fond des cases sélectionnées.
      */
     private void reinitialisationCouleur() {
+        Case lastSelectedTile = damierFragment.getLastSelectedTile();
+
         // Réinitialise la couleur de la dernière case sélectionnée (si elle existe)
-        if (damierFragment.lastSelectedTile != null) {
-            damierFragment.lastSelectedTile.resetBackgroundColor();
+        if (lastSelectedTile != null) {
+            lastSelectedTile.resetBackgroundColor();
         }
 
         // Réinitialise la couleur des dernières cases de déplacement possibles
-        if (damierFragment.lastSelectedTiles != null) {
-            damierFragment.lastSelectedTiles.forEach((key, caseDeJeu) -> caseDeJeu.resetBackgroundColor());
+        if (lastSelectedTile != null) {
+            damierFragment.getLastSelectedTiles().forEach((key, caseDeJeu) -> caseDeJeu.resetBackgroundColor());
         }
     }
 
@@ -272,7 +274,7 @@ public class Case extends FrameLayout implements View.OnClickListener {
                     couleurPion == Pion.Couleur.Noir && singletonDamier.getTourJoueur() == 2) {
 
                 setTileToSelectedColor();
-                damierFragment.lastSelectedTile = this;
+                damierFragment.setLastSelectedTile(this);
 
                 // Surbrillance des cases disponibles pour déplacement
                 damierFragment.displayAvailableTiles(position, isDame);

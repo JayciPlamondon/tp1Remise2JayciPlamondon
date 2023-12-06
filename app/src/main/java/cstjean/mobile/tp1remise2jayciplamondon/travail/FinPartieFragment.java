@@ -46,8 +46,6 @@ public class FinPartieFragment extends Fragment {
             }
         }
 
-
-
         Button restartGameButton = view.findViewById(R.id.restartGameButton);
         restartGameButton.setOnClickListener(v -> {
             // Démarrer la nouvelle activity

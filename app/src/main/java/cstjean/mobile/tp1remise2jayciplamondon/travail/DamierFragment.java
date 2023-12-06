@@ -13,11 +13,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +27,9 @@ import java.util.Map;
  * @author Jayci Plamondon
  */
 public class DamierFragment extends Fragment {
+    /**
+     * Représente la variable dont le joueur gagnant se trouve.
+     */
     private static final String JOUEUR_GAGNANT = "joueurGagnant";
 
     /**
@@ -66,11 +67,6 @@ public class DamierFragment extends Fragment {
     private String player2Name;
 
     /**
-     * Représente le linearLayout.
-     */
-    private LinearLayout linearLayout;
-
-    /**
      * Représente le titre tour du joueur.
      */
     private TextView titlePlayerTurn;
@@ -88,12 +84,16 @@ public class DamierFragment extends Fragment {
     /**
      * Dernière case sélectionnée.
      */
-    Case lastSelectedTile = null;
+    private Case lastSelectedTile = null;
 
     /**
      * Dernières cases sélectionnées par disponibilité.
      */
-    Map<Integer, Case> lastSelectedTiles = new HashMap<>();
+    private final Map<Integer, Case> lastSelectedTiles = new HashMap<>();
+
+    public Map<Integer, Case> getLastSelectedTiles() {
+        return lastSelectedTiles;
+    }
 
     /**
      * Représente le bouton retour en arrière.
@@ -203,7 +203,10 @@ public class DamierFragment extends Fragment {
      * Initialise les éléments de l'interface utilisateur.
      */
     private void initializeUiElements(View view) {
-        linearLayout = view.findViewById(R.id.linearLayout);
+        /**
+         * Représente le linearLayout.
+         */
+        LinearLayout linearLayout = view.findViewById(R.id.linearLayout);
 
         // Inside your Activity class
         int orientation = getResources().getConfiguration().orientation;
@@ -269,9 +272,9 @@ public class DamierFragment extends Fragment {
      */
     private void updateTitlePlayerTurn() {
         if (singletonDamier.getTourJoueur() == 1) {
-            titlePlayerTurn.setText("C'est le tour à " + player1Name);
+            titlePlayerTurn.setText("C'est le tour à \n" + player1Name);
         } else {
-            titlePlayerTurn.setText("C'est le tour à " + player2Name);
+            titlePlayerTurn.setText("C'est le tour à \n" + player2Name);
         }
     }
 
@@ -295,6 +298,24 @@ public class DamierFragment extends Fragment {
      */
     private void updateGoingBackButton(boolean isEnabled) {
         goingBackButton.setEnabled(isEnabled);
+    }
+
+    /**
+     * Renvoie la dernière case sélectionnée.
+     *
+     * @return La dernière case sélectionnée.
+     */
+    public Case getLastSelectedTile() {
+        return lastSelectedTile;
+    }
+
+    /**
+     * Définit la dernière case sélectionnée.
+     *
+     * @param newSelectedTile La nouvelle case sélectionnée.
+     */
+    public void setLastSelectedTile(Case newSelectedTile) {
+        lastSelectedTile = newSelectedTile;
     }
 
     /**
@@ -352,13 +373,14 @@ public class DamierFragment extends Fragment {
             }
 
             updateLayout();
-            joueurGagnantSiFin = singletonDamier.verifierSiGagnant();
-            if (joueurGagnantSiFin == SingletonDamier.WinningPlayer.BLACK
-                    || joueurGagnantSiFin == SingletonDamier.WinningPlayer.WHITE ) {
-                terminerPartie();
-            }
         } catch (Exception e) {
             System.out.println("Déplacement n'a pas fonctionné. Erreur : " + e.getMessage());
+        }
+
+        joueurGagnantSiFin = singletonDamier.verifierSiGagnant();
+        if (joueurGagnantSiFin == SingletonDamier.WinningPlayer.BLACK ||
+                joueurGagnantSiFin == SingletonDamier.WinningPlayer.WHITE) {
+            terminerPartie();
         }
 
     }
@@ -373,11 +395,17 @@ public class DamierFragment extends Fragment {
         // On crée le bundle contenant le joueur gagnant et on change de fragment.
 
         Bundle bundle = new Bundle();
+        String nomJoueurGagnant;
+
         if (joueurGagnantSiFin == SingletonDamier.WinningPlayer.WHITE) {
-            bundle.putSerializable(JOUEUR_GAGNANT, player1Name);
+            nomJoueurGagnant = player1Name;
         } else if (joueurGagnantSiFin == SingletonDamier.WinningPlayer.BLACK) {
-            bundle.putSerializable(JOUEUR_GAGNANT, player2Name);
+            nomJoueurGagnant = player2Name;
+        } else {
+            nomJoueurGagnant = "";
         }
+
+        bundle.putSerializable(JOUEUR_GAGNANT, nomJoueurGagnant);
 
         Fragment finDePartieFragment = new FinPartieFragment();
         finDePartieFragment.setArguments(bundle);

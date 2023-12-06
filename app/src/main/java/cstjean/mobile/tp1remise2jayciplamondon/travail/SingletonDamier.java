@@ -53,11 +53,11 @@ public class SingletonDamier {
      */
     public SingletonDamier() {
 
-        //initialiser();
+        initialiser();
         System.out.println("TOUR JOUEUR : " + tourJoueur);
-        ajouterPion(32, new Pion(Pion.Couleur.Noir));
-        ajouterPion(28, new Pion(Pion.Couleur.Blanc));
-        tourJoueur = 1;
+        //ajouterPion(32, new Pion(Pion.Couleur.Noir));
+        //ajouterPion(28, new Pion(Pion.Couleur.Blanc));
+        //tourJoueur = 1;
     }
 
     /**
@@ -264,6 +264,8 @@ public class SingletonDamier {
     public WinningPlayer verifierSiGagnant() {
         WinningPlayer winner = WinningPlayer.NONE;
 
+        // On vérifie si l'un des deux joueurs n'a plus de pions
+
         if (getNombrePionsCouleur(Pion.Couleur.Blanc) == 0) {
             System.out.println("Le joueur Noir a remporté la partie !");
             winner = WinningPlayer.BLACK;
@@ -272,6 +274,52 @@ public class SingletonDamier {
             winner = WinningPlayer.WHITE;
         }
 
+        // On vérifie s'il reste des déplacements on joueur du tour courant
+
+        for (Map.Entry<Integer, Pion> entry : pionMap.entrySet()) {
+            int key = entry.getKey();
+            Pion pion = entry.getValue();
+
+            boolean isWhiteTurn = (tourJoueur == 1);
+
+            Pion.Couleur playerColor = isWhiteTurn ? Pion.Couleur.Blanc : Pion.Couleur.Noir;
+
+            if (pion != null) {
+                if (pion.getCouleur() == playerColor) {
+
+                    System.out.println((caseDisponiblePion(key)));
+                    if (pion instanceof Dame) {
+                        for (boolean estJouable : caseDisponibleDame(key)) {
+                            if (estJouable) {
+                                break;
+                            } else {
+                                winner = isWhiteTurn ? WinningPlayer.BLACK : WinningPlayer.WHITE;
+                            }
+                        }
+                    } else {
+                        boolean allFalse = true;
+
+                        for (boolean estJouable : caseDisponiblePion(key)) {
+                            if (estJouable) {
+                                allFalse = false; // If any position is true, set the flag to false
+                                break; // Exit the loop as soon as any position is true
+                            }
+                        }
+
+                        if (allFalse) {
+                            // Perform actions if all positions are false
+                            System.out.println("CASEDISPONIBLE == ALLFALSE");
+                            winner = isWhiteTurn ? WinningPlayer.BLACK : WinningPlayer.WHITE;
+                        } else {
+                            // Perform actions if at least one position is true
+                            // ... (Handle the logic accordingly)
+                            System.out.println("CASEDISPONIBLE != ALLFALSE");
+
+                        }
+                    }
+                }
+            }
+        }
         return winner;
     }
 
@@ -298,13 +346,13 @@ public class SingletonDamier {
     public void initialiser() {
         // Les blancs commencent (tourJoueur = 1)
         resetBoard();
+        resetLogs();
 
         tourJoueur = 1;
 
         for (int i = 1; i <= 20; i++) {
             ajouterPion(i, new Pion(Pion.Couleur.Noir));
         }
-
         for (int i = 31; i <= 50; i++) {
             ajouterPion(i, new Pion(Pion.Couleur.Blanc));
         }
@@ -317,6 +365,8 @@ public class SingletonDamier {
         for (int i = 1; i <= 50; i++) {
             ajouterPion(i, null);
         }
+
+        pionMangeList.clear();
     }
 
     /**
@@ -392,6 +442,13 @@ public class SingletonDamier {
                 logsList.add(sb.toString());
             }
         }
+    }
+
+    /**
+     * Reset les logs.
+     */
+    public void resetLogs() {
+        logsList.clear();
     }
 
     /**

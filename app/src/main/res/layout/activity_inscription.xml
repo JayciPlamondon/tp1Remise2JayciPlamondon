@@ -47,13 +47,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Le nom du joueur 1"
-            android:layout_marginBottom="40dp"
             android:inputType="text" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:text="Joueur 2 :"
             android:textSize="25sp" />
 
@@ -61,7 +60,7 @@
             android:id="@+id/editTextPlayer2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="75dp"
+            android:layout_marginBottom="250dp"
             android:hint="Le nom du joueur 2"
             android:inputType="text" />
 
