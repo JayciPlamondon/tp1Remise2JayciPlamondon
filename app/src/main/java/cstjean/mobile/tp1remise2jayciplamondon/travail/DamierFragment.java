@@ -102,6 +102,11 @@ public class DamierFragment extends Fragment {
     private Button goingBackButton;
 
     /**
+     * Représente le bouton liste des déplacements.
+     */
+    private Button logsButton;
+
+    /**
      * Instance du jeu Damier.
      */
     private final SingletonDamier singletonDamier = SingletonDamier.getInstance();
@@ -142,13 +147,21 @@ public class DamierFragment extends Fragment {
         // Initialisation des éléments de l'interface utilisateur
         initializeUiElements(view);
 
-        goingBackButton.setEnabled(false);
+        if (singletonDamier.getLogsList().size() == 0) {
+            updateGoingBackButton(false);
+        }
+
         // Crée un gestionnaire d'événements OnClickListener bouton reset
         View.OnClickListener goingBackButtonClickListener = createGoingBackButtonClickListener();
 
-        // Définit le gestionnaire d'événements OnClickListener pour tous les boutons
-        setButtonOnClickListeners(goingBackButtonClickListener);
+        // Crée un gestionnaire d'événements OnClickListener bouton logs
+        View.OnClickListener logsButtonClickListener = createLogsButtonClickListener();
 
+        // Définit le gestionnaire d'événements OnClickListener pour bouton reset
+        setButtonOnClickListener(goingBackButton, goingBackButtonClickListener);
+
+        // Définit le gestionnaire d'événements OnClickListener pour bouton logs
+        setButtonOnClickListener(logsButton, logsButtonClickListener);
         return view;
     }
 
@@ -171,7 +184,14 @@ public class DamierFragment extends Fragment {
      * Crée un gestionnaire d'événements OnClickListener pour le bouton goignBackButton.
      */
     private View.OnClickListener createGoingBackButtonClickListener() {
-        return v -> handlegoingBackButtonClick();
+        return v -> handleGoingBackButtonClick();
+    }
+
+    /**
+     * Crée un gestionnaire d'événements OnClickListener pour le bouton logs.
+     */
+    private View.OnClickListener createLogsButtonClickListener() {
+        return v -> handleLogsButtonClick();
     }
 
     /**
@@ -179,20 +199,31 @@ public class DamierFragment extends Fragment {
      *
      * @param listener Le gestionnaire d'événements OnClickListener à définir.
      */
-    private void setButtonOnClickListeners(View.OnClickListener listener) {
-        goingBackButton.setOnClickListener(listener);
+    private void setButtonOnClickListener(View v, View.OnClickListener listener) {
+        v.setOnClickListener(listener);
     }
 
     /**
      * Retourne un déplacement en arrière.
      */
-    public void handlegoingBackButtonClick() {
+    public void handleGoingBackButtonClick() {
         singletonDamier.retourArriere();
         updateLayout();
 
         if (singletonDamier.getLogsList().size() == 0) {
-            goingBackButton.setEnabled(false);
+            updateGoingBackButton(false);
         }
+    }
+
+    /**
+     * Fait afficher la liste des déplacements.
+     */
+    public void handleLogsButtonClick() {
+        System.out.println("click logs");
+
+        Fragment deplacementsFragment = new DeplacementsFragment();
+        FragmentTransaction fm = requireActivity().getSupportFragmentManager().beginTransaction();
+        fm.replace(R.id.fragment_container, deplacementsFragment).commit();
     }
 
     /**
@@ -200,35 +231,42 @@ public class DamierFragment extends Fragment {
      */
     private void initializeUiElements(View view) {
 
+        System.out.println("INITIALISE_UI");
+
         LinearLayout linearLayout = view.findViewById(R.id.linearLayout);
 
         // Inside your Activity class
         int orientation = getResources().getConfiguration().orientation;
 
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            System.out.println("PORTRAIT");
-
+            logsButton = new Button(getActivity());
             titlePlayerTurn = new TextView(getActivity());
             titleManouryNotation = new TextView(getActivity());
             goingBackButton = new Button(getActivity());
         } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            System.out.println("LAND");
-
+            goingBackButton = view.findViewById(R.id.goingBackButton);
             titlePlayerTurn = view.findViewById(R.id.titlePlayerTurn);
             titleManouryNotation = view.findViewById(R.id.titleManouryNotation);
-            goingBackButton = view.findViewById(R.id.goingBackButton);
+            logsButton = view.findViewById(R.id.logsButton);
         }
 
         // Modifie la taille du texte et le met au centre
+        goingBackButton.setTextSize(30);
+        goingBackButton.setText(R.string.texte_retour_arriere);
+        goingBackButton.setGravity(Gravity.CENTER);
         titlePlayerTurn.setTextSize(35);
         titlePlayerTurn.setGravity(Gravity.CENTER);
         titleManouryNotation.setTextSize(30);
         titleManouryNotation.setGravity(Gravity.CENTER);
+        logsButton.setText("Liste des déplacements");
+        logsButton.setTextSize(25);
 
-        updateGoingBackButton(false);
-        goingBackButton.setTextSize(30);
-        goingBackButton.setText(R.string.texte_retour_arriere);
-        goingBackButton.setGravity(Gravity.CENTER);
+        if (singletonDamier.getLogsList().size() == 0) {
+            updateGoingBackButton(false);
+            System.out.println("false");
+        } else {
+            goingBackButton.setEnabled(true);
+        }
 
         updateTitlePlayerTurn();
         updateTitleManouryNotation();
@@ -236,6 +274,7 @@ public class DamierFragment extends Fragment {
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             linearLayout.addView(titlePlayerTurn);
             linearLayout.addView(titleManouryNotation);
+            linearLayout.addView(logsButton);
         }
 
         gridBoutons = new GridLayout(getActivity());
