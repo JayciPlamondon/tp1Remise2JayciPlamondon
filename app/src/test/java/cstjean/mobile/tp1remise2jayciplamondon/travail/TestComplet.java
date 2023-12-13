@@ -1,6 +1,10 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+
+import cstjean.mobile.tp1remise2jayciplamondon.travail.TestDame;
+import cstjean.mobile.tp1remise2jayciplamondon.travail.TestPion;
 
 /**
  * La classe TestComplet représente une suite de tests complète
@@ -8,19 +12,8 @@ import junit.framework.TestSuite;
  *
  * @author Jayci Plamondon
  */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({TestPion.class, TestDame.class})
 public class TestComplet {
-
-    /**
-     * Crée et retourne une suite de tests qui inclut les tests
-     * de la classe TestDamier, TestDame et de la classe TestPion.
-     *
-     * @return Une suite de tests complète.
-     */
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(TestSingletonDamier.class);
-        suite.addTestSuite(TestPion.class);
-        suite.addTestSuite(TestDame.class);
-        return suite;
-    }
+    // This class doesn't need any additional content when using JUnit 4 annotations
 }

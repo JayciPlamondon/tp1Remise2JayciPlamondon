@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Dames</string>
-    <string name="texte_retour_arriere">Retour en arrière</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="goingBackText">Retour en arrière</string>
+    <string name="winner_message">Le joueur gagnant est : %1$s</string>
+    <string name="log_item_format">%1$d. %2$s</string>
+    <string name="logs_text">Liste des déplacements</string>
 </resources>

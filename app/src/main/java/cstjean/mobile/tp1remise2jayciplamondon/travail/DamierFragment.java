@@ -34,6 +34,24 @@ public class DamierFragment extends Fragment {
     private static final String JOUEUR_GAGNANT = "joueurGagnant";
 
     /**
+     * Accesseur pour le nom du joueur 1.
+     *
+     * @return Le nom du joueur 1.
+     */
+    public String getPlayer1Name() {
+        return player1Name;
+    }
+
+    /**
+     * Accesseur pour le nom du joueur 2.
+     *
+     * @return Le nom du joueur 2.
+     */
+    public String getPlayer2Name() {
+        return player2Name;
+    }
+
+    /**
      * Interface définissant les méthodes de rappel pour obtenir les noms des joueurs.
      */
     public interface Callbacks {
@@ -141,7 +159,6 @@ public class DamierFragment extends Fragment {
         player1Name = callbacks.getPlayer1Name();
         player2Name = callbacks.getPlayer2Name();
 
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_damier, container, false);
 
         // Initialisation des éléments de l'interface utilisateur
@@ -219,8 +236,6 @@ public class DamierFragment extends Fragment {
      * Fait afficher la liste des déplacements.
      */
     public void handleLogsButtonClick() {
-        System.out.println("click logs");
-
         Fragment deplacementsFragment = new DeplacementsFragment();
         FragmentTransaction fm = requireActivity().getSupportFragmentManager().beginTransaction();
         fm.replace(R.id.fragment_container, deplacementsFragment).commit();
@@ -230,9 +245,6 @@ public class DamierFragment extends Fragment {
      * Initialise les éléments de l'interface utilisateur.
      */
     private void initializeUiElements(View view) {
-
-        System.out.println("INITIALISE_UI");
-
         LinearLayout linearLayout = view.findViewById(R.id.linearLayout);
 
         // Inside your Activity class
@@ -252,18 +264,18 @@ public class DamierFragment extends Fragment {
 
         // Modifie la taille du texte et le met au centre
         goingBackButton.setTextSize(30);
-        goingBackButton.setText(R.string.texte_retour_arriere);
+        goingBackButton.setText(R.string.goingBackText);
         goingBackButton.setGravity(Gravity.CENTER);
         titlePlayerTurn.setTextSize(35);
         titlePlayerTurn.setGravity(Gravity.CENTER);
         titleManouryNotation.setTextSize(30);
         titleManouryNotation.setGravity(Gravity.CENTER);
-        logsButton.setText("Liste des déplacements");
+
+        logsButton.setText(R.string.logs_text);
         logsButton.setTextSize(25);
 
         if (singletonDamier.getLogsList().size() == 0) {
             updateGoingBackButton(false);
-            System.out.println("false");
         } else {
             goingBackButton.setEnabled(true);
         }
@@ -375,7 +387,6 @@ public class DamierFragment extends Fragment {
 
         for (int i = 1; i <= 50; i++) {
             if (arrayCaseDisponible[i - 1]) {
-                System.out.println("position : " + i);
                 Case caseRecupere = requireActivity().findViewById(i);
                 caseRecupere.setTileToSelectedColor();
                 lastSelectedTiles.put(i, caseRecupere);
@@ -415,7 +426,6 @@ public class DamierFragment extends Fragment {
                 joueurGagnantSiFin == SingletonDamier.WinningPlayer.WHITE) {
             terminerPartie();
         }
-
     }
 
     /**
@@ -473,7 +483,7 @@ public class DamierFragment extends Fragment {
                 // Remplacer le paramètre lastSelectedTile par le Singleton!!!
                 if (isDark) {
                     caseDamier = new Case(getActivity(), i, j, positionReelle, true,
-                            this, singletonDamier.getPion(positionReelle), compteur, singletonDamier);
+                            this, singletonDamier.getPion(positionReelle), singletonDamier);
                     caseDamier.setId(compteur);
                     compteur++;
                 } else {

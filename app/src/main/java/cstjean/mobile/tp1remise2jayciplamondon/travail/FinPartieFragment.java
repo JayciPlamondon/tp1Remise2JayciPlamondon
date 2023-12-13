@@ -2,28 +2,31 @@ package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
+import androidx.fragment.app.Fragment;
 import cstjean.mobile.tp1remise2jayciplamondon.R;
 
+/**
+ * La classe FinPartieFragment représente le fragment qui affiche à la fin de la partie.
+ *
+ * @author Jayci Plamondon
+ */
 public class FinPartieFragment extends Fragment {
 
+    /**
+     * La clé pour le joueur gagnant.
+     */
     private static final String JOUEUR_GAGNANT = "joueurGagnant";
+
     /**
      * Instance du jeu Damier.
      */
     private final SingletonDamier singletonDamier = SingletonDamier.getInstance();
 
-
-    public FinPartieFragment() {
-    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +37,7 @@ public class FinPartieFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_fin_partie, container, false);
 
-        // Retrieve the arguments passed from the previous fragment
+        // Va chercher les arguments passé par le fragment précèdent
         Bundle bundle = getArguments();
         if (bundle != null) {
             // Extrait l'information du bundle
@@ -42,7 +45,8 @@ public class FinPartieFragment extends Fragment {
 
             if (joueurGagnant != null) {
                 TextView winnerTextView = view.findViewById(R.id.joueurGagnantTextView);
-                winnerTextView.setText("Le joueur gagnant est : " + joueurGagnant);
+                String winnerMessage = getResources().getString(R.string.winner_message, joueurGagnant);
+                winnerTextView.setText(winnerMessage);
             }
         }
 
@@ -54,11 +58,10 @@ public class FinPartieFragment extends Fragment {
             singletonDamier.initialiser();
 
             // Terminer l'activité actuelle pour fermer ce fragment
-            getActivity().finish();
+            requireActivity().finish();
         });
 
         return view;
     }
-
 }
 

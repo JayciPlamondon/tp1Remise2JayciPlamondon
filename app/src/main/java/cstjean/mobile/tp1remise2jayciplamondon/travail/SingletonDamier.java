@@ -1,5 +1,6 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
+import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,21 +23,14 @@ public class SingletonDamier {
     /**
      * Tableau représentant les pions du damier. Chaque élément correspond à une position du damier.
      */
-    private Map<Integer, Pion> pionMap = new HashMap<>();
+    private final Map<Integer, Pion> pionMap = new HashMap<>();
 
     /**
      * Une Map associant des entiers (positions) à des pions représentant les pions
      * qui ont été mangés ou pris lors du jeu. La clé de la map est la position où le pion
      * a été mangé, et la valeur associée est le pion mangé.
      */
-    private List<PionMange> pionMangeList = new ArrayList<>();
-
-    /**
-     * Une Map associant des entiers (positions) à des pions représentant les pions
-     * qui ont été transformés en dame lors du jeu. La clé de la map est la position où le pion
-     * a été transformé, et la valeur associée est le pion transformé.
-     */
-    private List<PionTransforme> pionTransformeList = new ArrayList<>();
+    private final List<PionMange> pionMangeList = new ArrayList<>();
 
     /**
      * Indique le tour du joueur en cours. 1 pour le joueur blanc, 2 pour le joueur noir.
@@ -53,13 +47,22 @@ public class SingletonDamier {
      * Initialise le damier et les pions.
      */
     public SingletonDamier() {
-
         initialiser();
-        System.out.println("TOUR JOUEUR : " + tourJoueur);
+    }
 
-        // ajouterPion(32, new Pion(Pion.Couleur.Noir));
-        // ajouterPion(28, new Pion(Pion.Couleur.Blanc));
-        // tourJoueur = 1;
+    /**
+     * Deuxième constructeur de la classe Damier.
+     * Sert aux classes de test.
+     * N'initialise pas le damier.
+     *
+     * @param estTest Si l'instance du singletonDamier est en mode test.
+     */
+    public SingletonDamier(boolean estTest) {
+        if (estTest) {
+            resetBoard();
+            resetLogs();
+            tourJoueur = 1;
+        }
     }
 
     /**
@@ -167,15 +170,6 @@ public class SingletonDamier {
         if (!logsList.isEmpty()) {
             String dernierCoup = logsList.remove(logsList.size() - 1); // Retirez le dernier coup enregistré
 
-            System.out.println(dernierCoup);
-
-            // Utilisation de la regex pour connaître la couleur
-            boolean estNoir = dernierCoup.matches("^\\(.*");
-            Pion.Couleur couleur;
-
-            couleur = estNoir ? Pion.Couleur.Noir : Pion.Couleur.Blanc;
-            System.out.println("Couleur = " + couleur);
-
             // Utilisation de regex pour ne retenir que les chiffres
             Pattern pattern = Pattern.compile("\\d+"); // Correspond à un ou plusieurs chiffres
             Matcher matcher = pattern.matcher(dernierCoup);
@@ -188,72 +182,26 @@ public class SingletonDamier {
             }
             // Position précèdente
             int positionPrecedente = chiffres.get(0);
-            System.out.println("Position précèdente = " + positionPrecedente);
 
             // Position actuelle
             int positionActuelle = chiffres.get(1);
-            System.out.println("Position actuelle = " + positionActuelle);
-
-            /* RETOUR EN ARRIÈRE TRANSFORMATION DAME
-            PionTransforme pionTransforme = null;
-
-            // Est une transformation en dame
-            if (pionActuel instanceof Dame) {
-
-
-                int positionPionTransforme;
-
-                    // Va chercher le dernier pion mangé dans l'array de pion transformés
-                    pionTransforme = pionTransformeList.get(pionTransformeList.size() - 1);
-                    positionPionTransforme = pionTransforme.getPosition();
-
-                    if (positionPionTransforme == positionPrecedente &&
-                            pionTransforme.getCouleur() == pionActuel.getCouleur()) {
-                        System.out.println("YES!");
-                    }
-
-
-
-                    System.out.println("Position Pion Transformé = " + positionPionTransforme);
-                    System.out.println("Pion Transformé = " + pionTransforme.getPion());
-                    pionMap.put(positionPionTransforme, pionTransforme.getPion());
-
-                    pionTransformeList.remove(pionTransformeList.size() - 1);
-            }
-            */
-
 
             // Est une prise
             boolean estPrise = dernierCoup.contains("x");
-            System.out.println("Est une prise = " + estPrise);
 
             // Si une prise, on retrouve le pion mangée
-
             PionMange pionMangee;
+
             if (estPrise) {
                 // Va chercher le dernier pion mangé dans l'array de pion mangés
                 pionMangee = pionMangeList.get(pionMangeList.size() - 1);
                 int positionPionMangee = pionMangee.getPosition();
-                System.out.println("Position Pion Mangé = " + positionPionMangee);
-                System.out.println("Pion mangé = " + pionMangee.getPion());
                 pionMap.put(positionPionMangee, pionMangee.getPion());
-
                 pionMangeList.remove(pionMangeList.size() - 1);
             }
 
             // Faire le retour en arrière
-
-            /* TRANSFORMATION EN DAME
-            if (pionTransforme != null) {
-                pionMap.remove(positionActuelle);
-                pionMap.put(positionPrecedente, pionTransforme.getPion());
-                changerTourJoueur();
-            }
-
-             */
-
             Pion pionActuel = getPion(positionActuelle);
-
             pionMap.remove(positionActuelle);
             pionMap.put(positionPrecedente, pionActuel);
             changerTourJoueur();
@@ -269,63 +217,12 @@ public class SingletonDamier {
         WinningPlayer winner = WinningPlayer.NONE;
 
         // On vérifie si l'un des deux joueurs n'a plus de pions
-
         if (getNombrePionsCouleur(Pion.Couleur.Blanc) == 0) {
-            System.out.println("Le joueur Noir a remporté la partie !");
             winner = WinningPlayer.BLACK;
         } else if (getNombrePionsCouleur(Pion.Couleur.Noir) == 0) {
-            System.out.println("Le joueur Blanc a remporté la partie !");
             winner = WinningPlayer.WHITE;
         }
 
-        // On vérifie s'il reste des déplacements on joueur du tour courant
-/*
-        for (Map.Entry<Integer, Pion> entry : pionMap.entrySet()) {
-            int key = entry.getKey();
-            Pion pion = entry.getValue();
-
-            boolean isWhiteTurn = (tourJoueur == 1);
-
-            Pion.Couleur playerColor = isWhiteTurn ? Pion.Couleur.Blanc : Pion.Couleur.Noir;
-
-            if (pion != null) {
-                if (pion.getCouleur() == playerColor) {
-
-                    System.out.println((caseDisponiblePion(key)));
-                    if (pion instanceof Dame) {
-                        for (boolean estJouable : caseDisponibleDame(key)) {
-                            if (estJouable) {
-                                break;
-                            } else {
-                                winner = isWhiteTurn ? WinningPlayer.BLACK : WinningPlayer.WHITE;
-                            }
-                        }
-                    } else {
-                        boolean allFalse = true;
-
-                        for (boolean estJouable : caseDisponiblePion(key)) {
-                            if (estJouable) {
-                                allFalse = false; // If any position is true, set the flag to false
-                                break; // Exit the loop as soon as any position is true
-                            }
-                        }
-
-                        if (allFalse) {
-                            // Perform actions if all positions are false
-                            System.out.println("CASEDISPONIBLE == ALLFALSE");
-                            winner = isWhiteTurn ? WinningPlayer.BLACK : WinningPlayer.WHITE;
-                        } else {
-                            // Perform actions if at least one position is true
-                            // ... (Handle the logic accordingly)
-                            System.out.println("CASEDISPONIBLE != ALLFALSE");
-
-                        }
-                    }
-                }
-            }
-        }
-
- */
         return winner;
     }
 
@@ -355,7 +252,14 @@ public class SingletonDamier {
      * @return Le nombre de pions présents sur le damier.
      */
     public int getNombrePions() {
-        return pionMap.size();
+        int compteurPions = 0;
+
+        for (Pion pion : pionMap.values()) {
+            if (pion != null) {
+                ++compteurPions;
+            }
+        }
+        return compteurPions;
     }
 
     /**
@@ -400,7 +304,6 @@ public class SingletonDamier {
         int row = getRow(positionDepart);
 
         return (col == 0 && row % 2 != 0) || (col == 4 && row % 2 == 0);
-
     }
 
     /**
@@ -426,8 +329,6 @@ public class SingletonDamier {
         StringBuilder sb = new StringBuilder();
 
         if (estPrise) {
-            // True
-            // logs déplacement prise
             if (couleur == Pion.Couleur.Noir) {
                 sb.append("(")
                     .append(positionDepart)
@@ -440,7 +341,6 @@ public class SingletonDamier {
                 sb.append(positionDepart)
                     .append("x")
                     .append(positionArrive);
-
                 logsList.add(sb.toString());
             }
         } else {
@@ -458,7 +358,6 @@ public class SingletonDamier {
                 sb.append(positionDepart)
                     .append("-")
                     .append(positionArrive);
-
                 logsList.add(sb.toString());
             }
         }
@@ -469,25 +368,6 @@ public class SingletonDamier {
      */
     public void resetLogs() {
         logsList.clear();
-    }
-
-    /**
-     * Affiche les logs des déplacements.
-     */
-    public void imprimerLogs() {
-        /*
-        System.out.println("""
-                -----LOGS DES DÉPLACEMENTS------
-                ---(y-y) == noir  y-y == blanc---
-                ------(yxy) == prise noire------
-                """);
-
-         */
-        int compteurDeplacement = 0;
-        for (String log : logsList) {
-            compteurDeplacement++;
-            System.out.println(compteurDeplacement + ". " + log);
-        }
     }
 
     /**
@@ -503,7 +383,6 @@ public class SingletonDamier {
             compteurDeplacement++;
             sb.append(compteurDeplacement).append(". ").append(log).append("\n");
         }
-
         return sb.toString();
     }
 
@@ -537,7 +416,6 @@ public class SingletonDamier {
         } else {
             pionEstEnnemi = false;
         }
-
         return pionEstEnnemi;
     }
 
@@ -548,14 +426,12 @@ public class SingletonDamier {
      * @param direction   La direction du déplacement.
      * @return Vrai si le pion essais de se déplacer en reculant, sinon faux.
      */
-    public boolean verifierSiReculons(Pion pionDeplace, Direction direction) {
+    public boolean verifierSiReculons(@NonNull Pion pionDeplace, Direction direction) {
         Pion.Couleur couleur = pionDeplace.getCouleur();
-
         return (couleur == Pion.Couleur.Noir &&
                     (direction == Direction.HautGauche || direction == Direction.HautDroite)) ||
                 (couleur == Pion.Couleur.Blanc &&
                         (direction == Direction.BasGauche || direction == Direction.BasDroite));
-
     }
 
     /**
@@ -619,8 +495,10 @@ public class SingletonDamier {
                 }
                 break;
             default:
-                positionArrive = -9999;
-                break;
+        }
+
+        if (positionArrive > 50 || positionArrive < 1) {
+            positionArrive = -1;
         }
 
         return positionArrive;
@@ -637,7 +515,7 @@ public class SingletonDamier {
     public int getCaseArrivePrise(int positionDepart, Direction direction) {
         int rowDepart = getRow(positionDepart);
         int colDepart = getCol(positionDepart);
-        int positionArrivePrise = 0;
+        int positionArrivePrise;
 
         switch (direction) {
             case BasGauche:
@@ -728,7 +606,6 @@ public class SingletonDamier {
      * @return La position de la case devant laquelle le pion se déplacera, ou -1 si le déplacement est impossible.
      */
     public int getCaseAvantPrise(int positionDepart, int positionArriveePrise, Direction direction) {
-
         int rowDepart = getRow(positionDepart);
         int rowArrivee = getRow(positionArriveePrise);
         int ecartRow = Math.abs(rowDepart - rowArrivee) - 1;
@@ -738,8 +615,10 @@ public class SingletonDamier {
 
         switch (direction) {
             case BasGauche:
+                if (positionArriveePrise == -1) {
+                    break;
+                }
                 if (rowDepart % 2 != 0) {
-
                     // Déplacement impossible hautDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
@@ -764,9 +643,10 @@ public class SingletonDamier {
                     positionArrive = positionDepart + addition;
                 }
                 break;
-
-            // RÉPÉTER LA LOGIQUE ICI AUX AUTRES
             case BasDroite:
+                if (positionArriveePrise == -1) {
+                    break;
+                }
                 if (rowDepart % 2 != 0) {
 
                     while (ecartRow > 0) {
@@ -794,10 +674,11 @@ public class SingletonDamier {
                     }
                 }
                 break;
-
             case HautGauche:
+                if (positionArriveePrise == -1) {
+                    break;
+                }
                 if (rowDepart % 2 != 0) {
-                    // Déplacement impossible basDroite si col 4 et row pair
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
@@ -822,6 +703,9 @@ public class SingletonDamier {
                 }
                 break;
             case HautDroite:
+                if (positionArriveePrise == -1) {
+                    break;
+                }
                 if (rowDepart % 2 != 0) {
 
                     while (ecartRow > 0) {
@@ -836,9 +720,7 @@ public class SingletonDamier {
                     if (estBordure(positionDepart)) {
                         positionArrive = -1;
                     } else {
-
                         isPair = true;
-
                         while (ecartRow > 0) {
                             addition += (isPair) ? -5 : -4;
                             isPair = !isPair;
@@ -851,6 +733,11 @@ public class SingletonDamier {
                 break;
             default:
                 positionArrive = -9999;
+                break;
+        }
+
+        if (positionArriveePrise == -1) {
+            positionArrive = -1;
         }
 
         if (positionArrive > 50 || positionArrive < 1) {
@@ -876,7 +763,6 @@ public class SingletonDamier {
         // Si blanc et rowArrive == 0 = true
         // Aucun des deux = false
         return (couleur == Pion.Couleur.Noir && rowArrive == 9) || (couleur == Pion.Couleur.Blanc && rowArrive == 0);
-
     }
 
     /**
@@ -923,11 +809,7 @@ public class SingletonDamier {
      * @param direction      La direction du déplacement.
      * @return Vrai si le déplacement a réussi, sinon faux.
      */
-    @SuppressWarnings("checkstyle:EmptyBlock")
     public boolean deplacerPion(int positionDepart, Direction direction) {
-        System.out.println("Position Départ -> " + positionDepart);
-        System.out.println("Direction -> " + direction);
-
         boolean peutDeplacerPion = false;
         int positionArrivee;
         int positionArriveePrise;
@@ -937,7 +819,6 @@ public class SingletonDamier {
             // True
             if (joueurPeutJouer(positionDepart)) {
                 // True
-                System.out.println("Joueur peut jouer !!!");
                 positionArrivee = getCaseArrivee(positionDepart, direction);
 
                 if (verifierSiCaseEstVide(positionArrivee) && positionArrivee != -1) {
@@ -954,11 +835,6 @@ public class SingletonDamier {
                         // vérification si peutTransformer après le déplacement
                         if (peutTransformer(positionArrivee)) {
                             // true peut transformer
-
-                            Pion pionTransforme = pionMap.get(positionArrivee);
-                            pionTransformeList.add(new PionTransforme(pionTransforme,
-                                    positionArrivee));
-
                             transformerEnDame(positionArrivee);
                         }
                         // changerLeTourDuJoueur
@@ -989,11 +865,6 @@ public class SingletonDamier {
                             // vérification si peutTransformer après le déplacement de prise
                             if (peutTransformer(positionArriveePrise)) {
                                 // true peut transformer
-
-                                Pion pionTransforme = pionMap.get(positionArrivee);
-                                pionTransformeList.add(new PionTransforme(pionTransforme,
-                                        positionArrivee));
-
                                 transformerEnDame(positionArriveePrise);
                             }
 
@@ -1044,7 +915,7 @@ public class SingletonDamier {
      */
     public Direction calculerDirection(int rowDepart, int rowArrive, int colDepart, int colArrive) {
         Direction direction;
-        if (colArrive > colDepart) {
+        if (colArrive > colDepart || (colArrive == colDepart) && rowArrive < rowDepart) {
             direction = (rowArrive < rowDepart) ? Direction.HautDroite : Direction.BasDroite;
         } else {
             direction = (rowArrive < rowDepart) ? Direction.HautGauche : Direction.BasGauche;
@@ -1067,7 +938,6 @@ public class SingletonDamier {
             caseArrivee = getCaseArrivee(positionDepart, direction);
             if (deplacementValidePion(caseArrivee, direction, getPion(positionDepart))) {
                 caseDisponiblePion[caseArrivee - 1] = true;
-                System.out.println(caseDisponiblePion[49]);
             } else {
                 // On vérifie pour la prise
                 if (verifierSiPionEnnemi(positionDepart, direction)) {
@@ -1091,7 +961,6 @@ public class SingletonDamier {
     public boolean[] caseDisponibleDame(int positionDepart) {
         int positionArrivee;
         boolean[] caseDisponiblesDame = new boolean[50];
-        Pion dameDeplacee = getPion(positionDepart);
 
         for (Direction direction : Direction.values()) {
 
@@ -1156,7 +1025,6 @@ public class SingletonDamier {
             Pion dameDeplacee = getPion(positionDepart);
             boolean[] caseDisponiblesDame;
             int positionAvantArriveePrise = getCaseAvantPrise(positionDepart, positionArrivee, direction);
-            System.out.println(positionAvantArriveePrise);
             // Pion.Couleur couleurDameDéplacée = dameDeplacee.getCouleur();
 
             // vérifie que c'est bien une dame que le joueur veut déplacé

@@ -1,5 +1,9 @@
 package cstjean.mobile.tp1remise2jayciplamondon.travail;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 /**
  * La classe de test TestDame est utilisée pour tester les fonctionnalités de la classe Dame.
  *
@@ -12,6 +16,7 @@ public class TestDame extends TestPion {
      * Vérifie que la couleur de la dame par défaut est "Blanc", que la couleur de la dame noire est correcte,
      * et que la couleur de la dame blanche est correcte.
      */
+    @Test
     public void testCreer() {
         Dame dameDefaut = new Dame();
         Dame dameNoir = new Dame(Pion.Couleur.Noir);
@@ -32,6 +37,7 @@ public class TestDame extends TestPion {
      * Vérifie que la représentation de la dame par défaut est 'd', que la représentation de la dame noire est 'D',
      * et que la représentation de la dame blanche est 'd'.
      */
+    @Test
     public void testGetRepresentation() {
         Dame dame = new Dame();
         Dame dameNoir = new Dame(Pion.Couleur.Noir);

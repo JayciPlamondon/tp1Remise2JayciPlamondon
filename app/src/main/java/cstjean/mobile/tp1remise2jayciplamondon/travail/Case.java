@@ -27,10 +27,6 @@ public class Case extends FrameLayout implements View.OnClickListener {
      * Couleur verte pour la case sélectionnée.
      */
     private static final int SELECTED_COLOR = Color.rgb(0, 255, 0);
-    /**
-     * Id de la case jouable.
-     */
-    private int id = -1;
 
     /**
      * Le fragment damierFragment.
@@ -87,11 +83,10 @@ public class Case extends FrameLayout implements View.OnClickListener {
      * @param isDark si la case est jouable (est foncée).
      * @param damierFragment le fragment damierFragment.
      * @param pion le pion sur la case.
-     * @param id l'id de la case.
      * @param singletonDamier le singleton singleDamier.
      */
     public Case(Context context, int row, int col, int position, boolean isDark,
-                DamierFragment damierFragment, Pion pion, int id, SingletonDamier singletonDamier) {
+                DamierFragment damierFragment, Pion pion, SingletonDamier singletonDamier) {
         super(context);
 
         this.row = row;
@@ -100,7 +95,6 @@ public class Case extends FrameLayout implements View.OnClickListener {
         this.isDark = isDark;
         this.damierFragment = damierFragment;
         this.pion = pion;
-        this.id = id;
         this.singletonDamier = singletonDamier;
         this.isDame = pion instanceof Dame;
 
@@ -215,18 +209,11 @@ public class Case extends FrameLayout implements View.OnClickListener {
      */
     @Override
     public void onClick(View view) {
-
         // Vérifie si la couleur de fond est claire
         if (!isDark) {
             // Si la couleur est claire, ne fait rien (désactive le clic)
             return;
         }
-
-        // Affiche des informations sur la case cliquée
-        System.out.println("Clic : ligne -> " + row + ", colonne -> " + col +
-                ", position -> " + position + ", estJouable -> " + isDark +
-                ", id -> " + id + ", estDame -> " + isDame);
-
         // Vérifie si la case contient un pion ou une dame et appelle la méthode correspondante
         if (!isDame) {
             handleOnClickPion();
@@ -240,7 +227,6 @@ public class Case extends FrameLayout implements View.OnClickListener {
      */
     public void handleOnClickPion() {
         if (isSelected && pion == null) {
-            System.out.println("On déplace le pion vers cette position!");
             damierFragment.deplacerPionLayout(row, col, position);
         }
 
@@ -252,9 +238,7 @@ public class Case extends FrameLayout implements View.OnClickListener {
      * Gère le clic sur une case contenant une dame.
      */
     public void handleOnClickDame() {
-        System.out.println("Le pion cliqué est une dame!");
         if (isSelected && pion == null) {
-            System.out.println("On déplace le pion vers cette position!");
             damierFragment.deplacerPionLayout(row, col, position);
         }
 
